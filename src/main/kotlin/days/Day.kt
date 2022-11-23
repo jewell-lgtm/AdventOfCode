@@ -2,13 +2,13 @@ package days
 
 import util.InputReader
 
-abstract class Day(dayNumber: Int) {
+abstract class Day(yearNumber: Int, dayNumber: Int) {
+    fun partOne(): Any = partOne(inputString)
+    fun partTwo(): Any = partTwo(inputString)
 
-    // lazy delegate ensures the property gets computed only on first access
-    protected val inputList: List<String> by lazy { InputReader.getInputAsList(dayNumber) }
-    protected val inputString: String by lazy { InputReader.getInputAsString(dayNumber) }
+    abstract fun partOne(input: String): Any
+    abstract fun partTwo(input: String): Any
 
-    abstract fun partOne(): Any
+    protected val inputString: String by lazy { InputReader.getInputAsString(yearNumber, dayNumber) }
 
-    abstract fun partTwo(): Any
 }
