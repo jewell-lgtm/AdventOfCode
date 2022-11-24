@@ -1,14 +1,13 @@
 package days.y2019
 
+import days.y2019.Day03
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
-import org.hamcrest.core.IsInstanceOf.instanceOf
-import org.hamcrest.core.IsNull.notNullValue
 import org.junit.jupiter.api.Test
 
-class Day3Test {
+class Day03Test {
 
-    private val dayOne = Day3()
+    private val dayOne = Day03()
 
     @Test
     fun testPartOne() {

@@ -3,7 +3,7 @@ package days.y2019
 import days.Day
 import kotlin.math.abs
 
-class Day3 : Day(2019, 3) {
+public class Day03 : Day(2019, 3) {
 
     override fun partOne(input: String): Any {
         val (wireA, wireB) = input.split("\n").map { it.parseWire() }
