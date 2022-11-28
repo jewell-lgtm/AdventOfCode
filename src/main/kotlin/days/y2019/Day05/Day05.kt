@@ -7,14 +7,15 @@ import util.integers
 class Day05 : Day(2019, 5) {
 
     override fun partOne(input: String): Any {
-        val intCodeComputer = IntCodeComputer()
-        intCodeComputer.run(input.integers(","))
+        val intCodeComputer = IntCodeComputer.from(input.integers(","), 1)
+        intCodeComputer.compute()
         return intCodeComputer.output.last()
     }
 
     override fun partTwo(input: String): Any {
-
-        return -1
+        val intCodeComputer = IntCodeComputer.from(input.integers(","), 5)
+        intCodeComputer.compute()
+        return intCodeComputer.output.last()
     }
 }
 

@@ -1,109 +1,92 @@
 package days.y2019.IntCodeComputer
 
-import util.integers
 
-
-class IntCodeComputer {
-    fun run(inputTape: String): String = run(inputTape.integers(",")).joinToString(",")
-
-    val outputValues = mutableListOf<Int>()
-    val output: List<Int> get() = outputValues.toList()
-
-    @Suppress("MemberVisibilityCanBePrivate")
-    fun run(inputTape: List<Int>): List<Int> {
-        val tape = inputTape.toMutableList()
+class IntCodeComputer(
+    val program: MutableList<Int>,
+    var input: Int?,
+) {
+    val output: MutableList<Int> = mutableListOf()
+    fun compute() {
         var pos = 0
-        var ticks = 0
-        outputValues.clear()
-        while (tape.getOrNull(pos) != null) {
-            ticks++
-            val instruction = tape[pos]
+        while (program.getOrNull(pos) != null) {
+            val instruction = program[pos]
             val opcode = instruction.opcode
-            val (parA, parB, parC) = tape.parModes(pos)
-            when (opcode) {
+            val (mode1, mode2, mode3) = instruction.modes
+            assert(mode3 == 0)
+            when (instruction.opcode) {
                 1 -> {
-                    val (a, b, c) = tape.subList(pos + 1, pos + 4)
-                    tape.setMode(parC, c, tape.getMode(parA, a) + tape.getMode(parB, b))
+                    program[program[pos + 3]] = program.getValue(mode1, pos + 1) + program.getValue(mode2, pos + 2)
                     pos += 4
                 }
+
                 2 -> {
-                    val (a, b, c) = tape.subList(pos + 1, pos + 4)
-                    val valA = tape.getMode(parA, a)
-                    val valB = tape.getMode(parB, b)
-                    tape.setMode(parC, c, valA * valB)
+                    program[program[pos + 3]] = program.getValue(mode1, pos + 1) * program.getValue(mode2, pos + 2)
                     pos += 4
                 }
+
                 3 -> {
-                    val input = 1
-                    val a = tape[pos + 1]
-                    tape[a] = input
+                    program[program[pos + 1]] = input!!
                     pos += 2
                 }
+
                 4 -> {
-                    val a = tape[pos + 1]
-                    val output = tape.getMode(parA, a)
-                    outputValue(output)
+                    output.add(program.getValue(mode1, pos + 1))
                     pos += 2
                 }
+
+                5 -> {
+                    if (program.getValue(mode1, pos + 1) != 0) {
+                        pos = program.getValue(mode2, pos + 2)
+                    } else {
+                        pos += 3
+                    }
+                }
+
+                6 -> {
+                    if (program.getValue(mode1, pos + 1) == 0) {
+                        pos = program.getValue(mode2, pos + 2)
+                    } else {
+                        pos += 3
+                    }
+                }
+
+                7 -> {
+                    program[program[pos + 3]] = if (program.getValue(mode1, pos + 1) < program.getValue(mode2, pos + 2)) 1 else 0
+                    pos += 4
+                }
+
+                8 -> {
+                    program[program[pos + 3]] = if (program.getValue(mode1, pos + 1) == program.getValue(mode2, pos + 2)) 1 else 0
+                    pos += 4
+                }
+
                 99 -> {
-                    println("Halting after $ticks ticks")
                     pos = -1
                 }
+
                 else -> {
-                    throw IllegalArgumentException("Unknown opcode $opcode")
+                    throw Exception("Unknown opcode $opcode")
                 }
             }
         }
-
-
-        return tape
     }
 
+    private val Int.opcode: Int
+        get() = this % 100
 
-    private fun outputValue(output: Int) {
-        outputValues.add(output)
-        println("Output: $output")
-    }
+    private val Int.modes: List<Int>
+        get() = (this / 100).toString().padStart(3, '0').reversed().map { it.toString().toInt() }
 
-
-
-}
-
-private fun MutableList<Int>.setMode(mode: ParameterMode, index: Int, value: Int) {
-    when (mode) {
-        ParameterMode.POSITION -> this[index] = value
-        ParameterMode.IMMEDIATE -> throw IllegalArgumentException("Can't set immediate mode")
-    }
-}
-
-private fun MutableList<Int>.getMode(mode: ParameterMode, index: Int): Int = when (mode) {
-    ParameterMode.POSITION -> this[index]
-    ParameterMode.IMMEDIATE -> index
-}
-
-enum class ParameterMode {
-    POSITION, IMMEDIATE;
+    private fun List<Int>.getValue(mode: Int, index: Int): Int = if (mode == 0) this[this[index]] else this[index]
 
     companion object {
-        fun tupleFrom(i: Int): Triple<ParameterMode, ParameterMode, ParameterMode> {
-            val (a, b, c) = (i / 100).toString().padStart(3, '0').reversed().map { it.toString().toInt() }
-            return Triple(a.toParMode(), b.toParMode(), c.toParMode())
-        }
-
-        fun from(i: Int): ParameterMode = when (i) {
-            0 -> POSITION
-            1 -> IMMEDIATE
-            else -> throw IllegalArgumentException("Unknown parameter mode $i")
+        fun from(integers: List<Int>, input: Int?): IntCodeComputer {
+            return IntCodeComputer(integers.toMutableList(), input)
         }
     }
 }
 
-private fun Int.toParMode(): ParameterMode = ParameterMode.from(this)
 
-private val Int.opcode: Int
-    get() {
-        return this % 100
-    }
 
-private fun MutableList<Int>.parModes(pos: Int): Triple<ParameterMode, ParameterMode, ParameterMode> =
-    ParameterMode.tupleFrom(this[pos])
+
+
