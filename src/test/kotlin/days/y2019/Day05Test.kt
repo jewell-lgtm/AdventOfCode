@@ -7,16 +7,14 @@ import org.junit.jupiter.api.Test
 
 class Day05Test {
 
-    private val dayOne = Day05()
-
 
     @Test
     fun testPartOne() {
-        assertThat(dayOne.partOne(), `is`(7286649))
+        assertThat(Day05().partOne(), `is`(7286649))
     }
 
     @Test
     fun testPartTwo() {
-        assertThat(dayOne.partTwo(), `is`(15724522))
+        assertThat(Day05().partTwo(), `is`(15724522))
     }
 }
