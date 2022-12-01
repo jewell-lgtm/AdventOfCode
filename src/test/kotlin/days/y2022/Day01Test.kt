@@ -1,7 +1,7 @@
 package days.y2022
 
 
-import days.y2022.Day01.Day01
+import days.y2022.day01.Day01
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test

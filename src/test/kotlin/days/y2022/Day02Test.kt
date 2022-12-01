@@ -1,13 +1,13 @@
 package days.y2022
 
 
-import days.y2022.day00.Day02
+import days.y2022.day02.Day02
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 
-class Day00Test {
+class Day02Test {
 
     @Test
     fun testExampleOne() {
@@ -31,7 +31,6 @@ class Day00Test {
             3
         """.trimIndent()), `is`(-1))
     }
-
 
     @Test
     fun testPartTwo() {
