@@ -64,72 +64,57 @@ class Day02 : Day(2022, 2) {
         val (a, b) = line.split(" ")
         Pair(a[0], b[0])
     }
+
+    private fun Pair<Char, Char>.partOneScore(): Int =
+        when (first) {
+            'A' -> when (second) {
+                'X' -> 1 + 3
+                'Y' -> 2 + 6
+                'Z' -> 3 + 0
+                else -> error("Unknown second: $second")
+            }
+
+            'B' -> when (second) {
+                'X' -> 1 + 0
+                'Y' -> 2 + 3
+                'Z' -> 3 + 6
+                else -> error("Unknown second: $second")
+            }
+
+            'C' -> when (second) {
+                'X' -> 1 + 6
+                'Y' -> 2 + 0
+                'Z' -> 3 + 3
+                else -> error("Unknown second: $second")
+            }
+
+            else -> error("Unknown first: $first")
+        }
+
+    private fun Pair<Char, Char>.partTwoScore(): Int =
+        when (first) {
+            'A' -> when (second) {
+                'X' -> Pair('A', 'Z').partOneScore()
+                'Y' -> Pair('A', 'X').partOneScore()
+                'Z' -> Pair('A', 'Y').partOneScore()
+                else -> error("Unknown second: $second")
+            }
+
+            'B' -> when (second) {
+                'X' -> Pair('B', 'X').partOneScore()
+                'Y' -> Pair('B', 'Y').partOneScore()
+                'Z' -> Pair('B', 'Z').partOneScore()
+                else -> error("Unknown second: $second")
+            }
+
+            'C' -> when (second) {
+                'X' -> Pair('C', 'Y').partOneScore()
+                'Y' -> Pair('C', 'Z').partOneScore()
+                'Z' -> Pair('C', 'X').partOneScore()
+                else -> error("Unknown second: $second")
+            }
+
+            else -> error("Unknown first: $first")
+
+        }
 }
-
-
-private fun Pair<Char, Char>.partOneScore(): Int =
-    when (first) {
-        'A' -> when (second) {
-            'X' -> 1 + 3
-            'Y' -> 2 + 6
-            'Z' -> 3 + 0
-            else -> error("Unknown second: $second")
-        }
-
-        'B' -> when (second) {
-            'X' -> 1 + 0
-            'Y' -> 2 + 3
-            'Z' -> 3 + 6
-            else -> error("Unknown second: $second")
-        }
-
-        'C' -> when (second) {
-            'X' -> 1 + 6
-            'Y' -> 2 + 0
-            'Z' -> 3 + 3
-            else -> error("Unknown second: $second")
-        }
-
-        else -> error("Unknown first: $first")
-    }
-
-
-private fun Pair<Char, Char>.partTwoScore(): Int =
-    when (first) {
-        'A' -> when (second) {
-            'X' -> Pair('A', 'Z').partOneScore()
-            'Y' -> Pair('A', 'X').partOneScore()
-            'Z' -> Pair('A', 'Y').partOneScore()
-            else -> error("Unknown second: $second")
-        }
-
-        'B' -> when (second) {
-            'X' -> Pair('B', 'X').partOneScore()
-            'Y' -> Pair('B', 'Y').partOneScore()
-            'Z' -> Pair('B', 'Z').partOneScore()
-            else -> error("Unknown second: $second")
-        }
-
-        'C' -> when (second) {
-            'X' -> Pair('C', 'Y').partOneScore()
-            'Y' -> Pair('C', 'Z').partOneScore()
-            'Z' -> Pair('C', 'X').partOneScore()
-            else -> error("Unknown second: $second")
-        }
-
-        else -> error("Unknown first: $first")
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
