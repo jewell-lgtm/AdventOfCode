@@ -7,20 +7,15 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 class Day06 : Day(2022, 6) {
-    override fun partOne(input: String): Any {
-        val buffer = MutableList<Char?>(4) { null }
-        input.forEachIndexed { index, c ->
-            buffer[index % 4] = c
-            if (buffer.filterNotNull().toSet().size == 4) return index + 1
-        }
-        return -1
-    }
+    override fun partOne(input: String): Any = input.charsUntilNDistinct(4)
 
-    override fun partTwo(input: String): Any {
-        val buffer = MutableList<Char?>(14) { null }
-        input.forEachIndexed { index, c ->
-            buffer[index % 14] = c
-            if (buffer.filterNotNull().toSet().size == 14) return index + 1
+    override fun partTwo(input: String): Any = input.charsUntilNDistinct(14)
+
+    private fun String.charsUntilNDistinct(n: Int): Int {
+        val buffer = MutableList<Char?>(n) { null }
+        forEachIndexed { index, c ->
+            buffer[index % n] = c
+            if (buffer.filterNotNull().toSet().size == n) return index + 1
         }
         return -1
     }
