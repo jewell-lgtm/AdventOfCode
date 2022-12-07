@@ -17,6 +17,16 @@ class Day07 : Day(2022, 7) {
         return rootDir.childNodesWhere { it.size() < 100000 }.sumOf { it.size() }
     }
 
+    override fun partTwo(input: String): Any {
+        parseInput(input)
+        val unusedSpace = (70000000 - rootDir.size())
+        val neededSpace = 30000000 - unusedSpace
+
+        val dirsToDelete = rootDir.childNodesWhere { it.size() >= neededSpace }
+        val dirToDelete = dirsToDelete.minBy { it.size() }
+        return dirToDelete.size()
+    }
+
     private fun parseInput(input: String) {
         lines = input.lines()
         while (position < lines.size) {
@@ -53,11 +63,6 @@ class Day07 : Day(2022, 7) {
             } else error("Unknown line format: ${lines[position]}")
             position++
         }
-    }
-
-
-    override fun partTwo(input: String): Any {
-        return -1
     }
 
     data class FSFile(val name: String, val size: Int) {
@@ -125,17 +130,24 @@ class Day07Test {
     @Test
     fun testExampleOne() {
         assertThat(
-            Day07().partOne(exampleInput).toString(), `is`(95437.toString())
+            Day07().partOne(exampleInput), `is`(95437)
         )
     }
 
     @Test
     fun testPartOne() {
-        assertThat(Day07().partOne().toString(), `is`(1816))
+        assertThat(Day07().partOne(), `is`(1915606))
+    }
+
+    @Test
+    fun testExampleTwo() {
+        assertThat(
+            Day07().partTwo(exampleInput).toString(), `is`(24933642.toString())
+        )
     }
 
     @Test
     fun testPartTwo() {
-        assertThat(Day07().partTwo(), `is`(2625))
+        assertThat(Day07().partTwo(), `is`(5025657))
     }
 }
