@@ -7,10 +7,7 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 class Day07 : Day(2022, 7) {
-    var position = 1
     val rootDir = FSNode.from("/", null)
-    var currNode = rootDir
-    var lines = listOf<String>()
 
     override fun partOne(input: String): Any {
         parseInput(input)
@@ -28,53 +25,39 @@ class Day07 : Day(2022, 7) {
     }
 
     private fun parseInput(input: String) {
-        lines = input.lines()
-        while (position < lines.size) {
-            if ("$ ls" == lines[position]) {
-                position++
-                readLsResult()
-            } else if (lines[position].startsWith("$ cd")) {
-                val (_, _, name) = lines[position].split(" ")
-                changeDir(name)
-                position++
-            } else {
-                error("Unknown command: ${lines[position]}")
+        val lines = input.lines().drop(1) // first command is $ cd /
+        var currNode = rootDir
+
+        for (line in lines) {
+            if (line == "$ ls") {
+                continue
             }
-        }
-    }
-
-    private fun changeDir(name: String) {
-        currNode = if (!name.startsWith("..")) {
-            currNode.children.first { it.name == name }
-        } else {
-            currNode.parent!!
-        }
-    }
-
-    private fun readLsResult() {
-        while (position < lines.size && lines[position].isNotBlank()) {
-            if (lines[position].startsWith("$")) {
-                break
-            } else if (lines[position].startsWith("dir")) {
-                val dirName = lines[position].split(" ").last()
+            if (line == "$ cd ..") {
+                currNode = currNode.parent!!
+                continue
+            }
+            if (line.startsWith("$ cd ")) {
+                val dirName = line.split(" ").last()
+                currNode = currNode.children.find { it.name == dirName }!!
+                continue
+            }
+            if (line.startsWith("dir ")) {
+                val dirName = line.split(" ").last()
                 currNode.children.add(FSNode.from(dirName, currNode))
-            } else if (lines[position][0].isDigit()) {
-                currNode.files.add(FSFile.from(lines[position]))
-            } else error("Unknown line format: ${lines[position]}")
-            position++
-        }
-    }
-
-    data class FSFile(val name: String, val size: Int) {
-        companion object {
-            fun from(line: String): FSFile {
-                val parts = line.split(" ")
-                return FSFile(parts[1], parts[0].toInt())
+                continue
             }
+            if (line[0].isDigit()) {
+                val (size, name) = line.split(" ")
+                currNode.files.add(FSFile(name, size.toInt()))
+                continue
+            }
+            error("Unknown format: $line")
         }
     }
 
-    class FSNode(
+    data class FSFile(val name: String, val size: Int)
+
+    data class FSNode(
         val name: String,
         val files: MutableList<FSFile>,
         val children: MutableList<FSNode>,
