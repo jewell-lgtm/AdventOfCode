@@ -1,4 +1,4 @@
-package days.y2072
+package days.y2022
 
 
 import days.Day
@@ -7,7 +7,7 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 class Day07 : Day(2022, 7) {
-    val rootDir = FSNode.from("/", null)
+    private val rootDir = FSNode.from("/", null)
 
     override fun partOne(input: String): Any {
         parseInput(input)
@@ -32,13 +32,13 @@ class Day07 : Day(2022, 7) {
             if (line == "$ ls") {
                 continue
             }
-            if (line == "$ cd ..") {
-                currNode = currNode.parent!!
-                continue
-            }
             if (line.startsWith("$ cd ")) {
                 val dirName = line.split(" ").last()
-                currNode = currNode.children.find { it.name == dirName }!!
+                currNode = if (dirName == ".." ) {
+                    currNode.parent!!
+                } else {
+                    currNode.child(dirName)
+                }
                 continue
             }
             if (line.startsWith("dir ")) {
@@ -59,13 +59,13 @@ class Day07 : Day(2022, 7) {
 
     data class FSNode(
         val name: String,
-        val files: MutableList<FSFile>,
-        val children: MutableList<FSNode>,
+        val files: MutableSet<FSFile>,
+        val children: MutableSet<FSNode>,
         val parent: FSNode?
     ) {
         fun size(): Int = files.sumOf { it.size } + children.sumOf { it.size() }
-        fun childNodesWhere(function: (node: FSNode) -> Boolean): List<FSNode> {
-            val result = mutableListOf<FSNode>()
+        fun childNodesWhere(function: (node: FSNode) -> Boolean): Set<FSNode> {
+            val result = mutableSetOf<FSNode>()
             children.forEach { child ->
                 if (function(child)) {
                     result.add(child)
@@ -75,8 +75,10 @@ class Day07 : Day(2022, 7) {
             return result
         }
 
+        fun child(dirName: String): FSNode = this.children.find { it.name == dirName }!!
+
         companion object {
-            fun from(name: String, parent: FSNode?): FSNode = FSNode(name, mutableListOf(), mutableListOf(), parent)
+            fun from(name: String, parent: FSNode?): FSNode = FSNode(name, mutableSetOf(), mutableSetOf(), parent)
         }
     }
 }
