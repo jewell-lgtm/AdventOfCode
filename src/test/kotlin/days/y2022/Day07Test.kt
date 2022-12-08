@@ -7,7 +7,7 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 class Day07 : Day(2022, 7) {
-    private val rootDir = FSNode.from("/", null)
+    private lateinit var rootDir: FSNode
 
     override fun partOne(input: String): Any {
         parseInput(input)
@@ -25,6 +25,7 @@ class Day07 : Day(2022, 7) {
     }
 
     private fun parseInput(input: String) {
+        rootDir = FSNode.from("..", null)
         val lines = input.lines().drop(1) // first command is $ cd /
         var currNode = rootDir
 
