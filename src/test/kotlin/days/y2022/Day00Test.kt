@@ -7,6 +7,17 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 
+class Day00 : Day(2022, 0) {
+    override fun partOne(input: String): Any {
+        return -1
+    }
+
+    override fun partTwo(input: String): Any {
+        return -1
+    }
+}
+
+
 class Day00Test {
 
     @Test
@@ -31,21 +42,8 @@ class Day00Test {
             3
         """.trimIndent()), `is`(-1))
     }
-
     @Test
     fun testPartTwo() {
         assertThat(Day00().partTwo(), `is`(-1))
-    }
-}
-
-
-
-class Day00 : Day(2022, 0) {
-    override fun partOne(input: String): Any {
-        return -1
-    }
-
-    override fun partTwo(input: String): Any {
-        return -1
     }
 }
