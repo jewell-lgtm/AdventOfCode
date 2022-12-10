@@ -33,16 +33,14 @@ class Day09 : Day(2022, 9) {
         val directions = parseInput(input)
         val snake = MutableList(10) { Pair(0, 0) }
         val visited = mutableSetOf(Pair(0, 0))
-        for (direction in directions) {
-            var toTravel = direction.distance
-            while (toTravel > 0) {
-                snake[0] += direction.direction
+        for (instruction in directions) {
+            repeat(instruction.distance) {
+                snake[0] += instruction.direction
                 // pretty sure most of the snake could stay still
                 for (segment in snake.indices.drop(1)) {
                     snake[segment] = snake[segment].follow(snake[segment - 1])
                 }
                 visited.add(snake.last())
-                toTravel--
             }
         }
         return visited.size
