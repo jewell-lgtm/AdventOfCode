@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 
 class Day10 : Day(2022, 10) {
     override fun partOne(input: String): Any {
-        val state = crunch(parseInput(input))
+        val state = execute(parseInput(input))
         return listOf(
             state.registerAt[19] * 20,
             state.registerAt[59] * 60,
@@ -24,7 +24,7 @@ class Day10 : Day(2022, 10) {
 
     override fun partTwo(input: String): Any {
         val result: MutableList<MutableList<Char>> = mutableListOf()
-        val programState = crunch(parseInput(input))
+        val programState = execute(parseInput(input))
         val rowWidth = 40
         programState.registerAt.dropLast(1).forEachIndexed { index, register ->
             val col = index % rowWidth
@@ -42,15 +42,13 @@ class Day10 : Day(2022, 10) {
         return result.joinToString("\n") { it.joinToString("") }
     }
 
-    private fun Int.drawChar(register: Int): Char {
-        if (listOf(register - 1, register, register + 1).contains(this)) {
-            return '#'
-        }
-        return '.'
-    }
+    private fun Int.drawChar(register: Int): Char =
+        if (listOf(register - 1, register, register + 1).contains(this)) '#'
+        else '.'
 
     fun parseInput(input: String): List<Instruction> = input.trim().lines().map { Instruction.from(it) }
-    fun crunch(instructions: List<Instruction>): ProgramState =
+
+    fun execute(instructions: List<Instruction>): ProgramState =
         instructions.fold(ProgramState()) { state, instruction ->
             state.apply {
                 instruction.execute(this)
@@ -119,7 +117,7 @@ class Day10Test {
                         addx -5
                     """.trimIndent()
         )
-        val registers = Day10().crunch(
+        val registers = Day10().execute(
             instructions
         ).registerAt.toList()
         val expected = listOf(
