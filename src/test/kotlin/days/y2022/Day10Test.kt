@@ -43,7 +43,7 @@ class Day10 : Day(2022, 10) {
     }
 
     private fun Int.drawChar(register: Int): Char =
-        if (listOf(register - 1, register, register + 1).contains(this)) '#'
+        if ((register - 1 .. register + 1).contains(this)) '#'
         else '.'
 
     fun parseInput(input: String): List<Instruction> = input.trim().lines().map { Instruction.from(it) }
