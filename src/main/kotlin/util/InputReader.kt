@@ -13,6 +13,7 @@ object InputReader {
     }
 
     private fun fromResources(year: Int, day: Int): File {
-        return File(javaClass.classLoader.getResource("$year/input_day_$day.txt")?.toURI() ?: error("Input file not found"))
+        val name = "$year/input_day_$day.txt"
+        return File(javaClass.classLoader.getResource(name)?.toURI() ?: error("Input file $name not found"))
     }
 }
