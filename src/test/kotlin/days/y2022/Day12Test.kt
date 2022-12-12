@@ -15,29 +15,44 @@ class Day12 : Day(2022, 12) {
 
     override fun partTwo(input: String): Any {
         val (map, _, endPos) = parseInput(input)
-        val startPositions = map.scanForAll { it == 'S'.code || it == 'a'.code }
+        val startPositions = map.scanAll { it == 'S'.code || it == 'a'.code }
 
-        return startPositions.minOf { findPath(map, it, endPos) }
+        var best = Int.MAX_VALUE
+        for (startPos in startPositions) {
+            val path = findPath(map, startPos, endPos)
+            if (path < best) {
+                best = path
+            }
+        }
+
+        return best
     }
 
     fun parseInput(input: String): Triple<List<List<Int>>, Pair<Int, Int>, Pair<Int, Int>> {
         val lines = input.trim().lines()
         val map = lines.map { line -> line.trim().map { it.code } }
-        val startPos = map.find { it == 'S'.code }
-        val endPos = map.find { it == 'E'.code }
+        val startPos = map.scanFor { it == 'S'.code }
+        val endPos = map.scanFor { it == 'E'.code }
         return Triple(map, startPos, endPos)
     }
 
 
-    fun <T> List<List<T>>.find(test: (T) -> Boolean) = scanForAll(test).first()
+    fun <T> List<List<T>>.scanFor(test: (T) -> Boolean) = scanAll(test).first()
 
-    fun <T> List<List<T>>.scanForAll(test: (T) -> Boolean) = mapIndexed { y, row ->
-        row.mapIndexedNotNull { x, value -> if (test(value)) x to y else null }
-    }.flatten()
 
-        private
+    fun <T> List<List<T>>.scanAll(test: (T) -> Boolean): List<Pair<Int, Int>> {
+        val result = mutableListOf<Pair<Int, Int>>()
+        for (i in indices) {
+            for (j in this[i].indices) {
+                if (test(this[i][j])) {
+                    result.add(i to j)
+                }
+            }
+        }
+        return result
+    }
 
-    fun findPath(map: List<List<Int>>, startPos: Pair<Int, Int>, endPos: Pair<Int, Int>): Int {
+    private fun findPath(map: List<List<Int>>, startPos: Pair<Int, Int>, endPos: Pair<Int,Int>): Int {
         val pathLengthTo = mutableMapOf(startPos to 0)
         val nodesToVisit = mutableSetOf(startPos)
 
@@ -70,7 +85,7 @@ class Day12 : Day(2022, 12) {
             Pair(first, second - 1),
             Pair(first, second + 1)
         )
-            .filter { it.first in map.indices && it.second in map[0].indices }
+            .filter { it.first in map.indices && it.second in map[it.first].indices }
             .filter {
                 val value = if (map[this.first][this.second] == 'S'.code) 'a'.code else map[this.first][this.second]
                 val otherValue = if (map[it.first][it.second] == 'E'.code) 'z'.code else map[it.first][it.second]
