@@ -86,9 +86,9 @@ class Day12 : Day(2022, 12) {
             Pair(first, second + 1)
         )
             .filter { it.first in map.indices && it.second in map[it.first].indices }
-            .filter {
-                val value = if (map[this.first][this.second] == 'S'.code) 'a'.code else map[this.first][this.second]
-                val otherValue = if (map[it.first][it.second] == 'E'.code) 'z'.code else map[it.first][it.second]
+            .filter { neighbor ->
+                val value = map[this.first][this.second].takeUnless { it == 'S'.code } ?: 'a'.code
+                val otherValue = map[neighbor.first][neighbor.second].takeUnless { it == 'E'.code } ?: 'z'.code
                 otherValue <= value + 1
             }
     }
