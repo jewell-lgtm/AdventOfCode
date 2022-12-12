@@ -13,3 +13,5 @@
 - [Day 8](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day08Test.kt)
 - [Day 9](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day09Test.kt)
 - [Day 10](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day10Test.kt)
+- [Day 11](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day11Test.kt)
+- [Day 12](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day12Test.kt)
