@@ -7,22 +7,33 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 
-class Day00 : Day(2022, 0) {
+class Day13 : Day(2022, 13) {
     override fun partOne(input: String): Any {
+        val packets = parseInput(input)
+
+
         return -1
     }
 
     override fun partTwo(input: String): Any {
         return -1
     }
+
+
+    abstract class Packet
+
+    data class IntPacket(val value: Int)
+    data class ListPacket(val value: List<Packet>)
+
+    fun parseInput(input: String): List<Pair<Packet>>
 }
 
 
-class Day00Test {
+class Day13Test {
 
     @Test
     fun testExampleOne() {
-        assertThat(Day00().partOne("""
+        assertThat(Day13().partOne("""
             1
             2
             3
@@ -31,12 +42,12 @@ class Day00Test {
 
     @Test
     fun testPartOne() {
-        assertThat(Day00().partOne(), `is`(-1))
+        assertThat(Day13().partOne(), `is`(-1))
     }
 
     @Test
     fun testExampleTwo() {
-        assertThat(Day00().partTwo("""
+        assertThat(Day13().partTwo("""
             1
             2
             3
@@ -44,6 +55,6 @@ class Day00Test {
     }
     @Test
     fun testPartTwo() {
-        assertThat(Day00().partTwo(), `is`(-1))
+        assertThat(Day13().partTwo(), `is`(-1))
     }
 }
