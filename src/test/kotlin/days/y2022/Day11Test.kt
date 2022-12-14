@@ -26,7 +26,7 @@ class Day11 : Day(2022, 11) {
         val monkeys = parseInput(input)
         val monkeyProduct = monkeys.map { it.test }.product()
 
-        repeat (10_000) {
+        repeat(10_000) {
             for (monkey in monkeys) {
                 monkey.round(monkeys, 1, monkeyProduct)
             }
@@ -35,73 +35,74 @@ class Day11 : Day(2022, 11) {
 
         return (most.inspections * second.inspections).toString()
     }
-}
 
-private fun List<ULong>.product() = this.fold(1uL) { acc, i -> acc * i }
+    private fun List<ULong>.product() = this.fold(1uL) { acc, i -> acc * i }
 
 
-fun parseInput(input: String) = input.split("\n\n")
-    .map { monkeyStr ->
-        Monkey.from(monkeyStr.trimIndent().lines())
-    }
+    private fun parseInput(input: String) = input.split("\n\n")
+        .map { monkeyStr ->
+            Monkey.from(monkeyStr.trimIndent().lines())
+        }
 
-class Monkey(
-    val index: Int,
-    val items: MutableList<ULong>,
-    val operation: (ULong) -> ULong,
-    val test: ULong,
-    val ifTrueMonkeyIndex: Int,
-    val ifFalseMonkeyIndex: Int,
-    var inspections: ULong = 0uL
-) {
-    fun round(monkeys: List<Monkey>, relief: Int, monkeyProduct: ULong? = null) {
-        items.indices.forEach { index ->
-            items[index] = operation(items[index])
-            items[index] = items[index] / relief.toULong()
-            if (monkeyProduct != null) items[index] = items[index] % monkeyProduct
-            if ((items[index]) % test == 0uL) {
-                monkeys[ifTrueMonkeyIndex].items.add(items[index])
-            } else {
-                monkeys[ifFalseMonkeyIndex].items.add(items[index])
+    class Monkey(
+        val index: Int,
+        val items: MutableList<ULong>,
+        val operation: (ULong) -> ULong,
+        val test: ULong,
+        val ifTrueMonkeyIndex: Int,
+        val ifFalseMonkeyIndex: Int,
+        var inspections: ULong = 0uL
+    ) {
+        fun round(monkeys: List<Monkey>, relief: Int, monkeyProduct: ULong? = null) {
+            items.indices.forEach { index ->
+                items[index] = operation(items[index])
+                items[index] = items[index] / relief.toULong()
+                if (monkeyProduct != null) items[index] = items[index] % monkeyProduct
+                if ((items[index]) % test == 0uL) {
+                    monkeys[ifTrueMonkeyIndex].items.add(items[index])
+                } else {
+                    monkeys[ifFalseMonkeyIndex].items.add(items[index])
+                }
             }
-        }
-        inspections += items.size.toULong()
-        items.clear()
-    }
-
-
-    companion object {
-        fun from(lines: List<String>) = Monkey(
-            monkeyNumber(lines[0]),
-            monkeyItems(lines[1]).map { it.toULong() }.toMutableList(),
-            monkeyOperation(lines[2]),
-            monkeyNumber(lines[3]).toULong(),
-            monkeyNumber(lines[4]),
-            monkeyNumber(lines[5]),
-        )
-
-
-        private fun monkeyNumber(s: String): Int {
-            val found =
-                Regex("(\\d+)").find(s) ?: throw IllegalArgumentException("Could not find monkey number in $s")
-            return found.value.toInt()
+            inspections += items.size.toULong()
+            items.clear()
         }
 
-        private fun monkeyItems(s: String) =
-            Regex("(\\d+)").findAll(s).map { it.value.toInt() }.toList()
 
-        private fun monkeyOperation(s: String): (ULong) -> (ULong) {
-            if (s.contains("old * old")) {
-                return { old -> old * old }
+        companion object {
+            fun from(lines: List<String>) = Monkey(
+                monkeyNumber(lines[0]),
+                monkeyItems(lines[1]).map { it.toULong() }.toMutableList(),
+                monkeyOperation(lines[2]),
+                monkeyNumber(lines[3]).toULong(),
+                monkeyNumber(lines[4]),
+                monkeyNumber(lines[5]),
+            )
+
+
+            private fun monkeyNumber(s: String): Int {
+                val found =
+                    Regex("(\\d+)").find(s) ?: throw IllegalArgumentException("Could not find monkey number in $s")
+                return found.value.toInt()
             }
-            val operand = monkeyNumber(s).toULong()
-            if (s.contains("*")) return { old -> old * operand }
-            if (s.contains("+")) return { old -> old + operand }
-            error("unknown operation $s")
+
+            private fun monkeyItems(s: String) =
+                Regex("(\\d+)").findAll(s).map { it.value.toInt() }.toList()
+
+            private fun monkeyOperation(s: String): (ULong) -> (ULong) {
+                if (s.contains("old * old")) {
+                    return { old -> old * old }
+                }
+                val operand = monkeyNumber(s).toULong()
+                if (s.contains("*")) return { old -> old * operand }
+                if (s.contains("+")) return { old -> old + operand }
+                error("unknown operation $s")
+            }
+
+
         }
-
-
     }
+
 }
 
 

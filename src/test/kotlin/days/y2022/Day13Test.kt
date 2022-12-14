@@ -7,8 +7,9 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 
-class Day00 : Day(2022, 0) {
+class Day13 : Day(2022, 13) {
     override fun partOne(input: String): Any {
+        // today's solution is in done in typescript
         return -1
     }
 
@@ -18,8 +19,8 @@ class Day00 : Day(2022, 0) {
 }
 
 
-class Day00Test {
-        val exampleInput = """
+class Day13Test {
+    val exampleInput = """
             [1,1,3,1,1]
             [1,1,5,1,1]
             
@@ -47,24 +48,29 @@ class Day00Test {
 
     @Test
     fun testExampleOne() {
-        assertThat(Day00().partOne(exampleInput), `is`(-1))
+        assertThat(Day13().partOne(exampleInput), `is`(-1))
     }
 
     @Test
     fun testPartOne() {
-        assertThat(Day00().partOne(), `is`(-1))
+        assertThat(Day13().partOne(), `is`(-1))
     }
 
     @Test
     fun testExampleTwo() {
-        assertThat(Day00().partTwo("""
+        assertThat(
+            Day13().partTwo(
+                """
             1
             2
             3
-        """.trimIndent()), `is`(-1))
+        """.trimIndent()
+            ), `is`(-1)
+        )
     }
+
     @Test
     fun testPartTwo() {
-        assertThat(Day00().partTwo(), `is`(-1))
+        assertThat(Day13().partTwo(), `is`(-1))
     }
 }

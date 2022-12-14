@@ -7,11 +7,8 @@ import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 
 
-class Day13 : Day(2022, 13) {
+class Day00 : Day(2022, 0) {
     override fun partOne(input: String): Any {
-        val packets = parseInput(input)
-
-
         return -1
     }
 
@@ -19,42 +16,45 @@ class Day13 : Day(2022, 13) {
         return -1
     }
 
-
-    abstract class Packet
-
-    data class IntPacket(val value: Int)
-    data class ListPacket(val value: List<Packet>)
-
-    fun parseInput(input: String): List<Pair<Packet>>
 }
 
 
-class Day13Test {
+class Day00Test {
+    val exampleInput = """
+        1
+        2
+        3
+    """.trimIndent()
 
     @Test
     fun testExampleOne() {
-        assertThat(Day13().partOne("""
-            1
-            2
-            3
-        """.trimIndent()), `is`(-1))
+        assertThat(
+            Day00().partOne(
+                exampleInput
+            ), `is`(-1)
+        )
     }
 
     @Test
     fun testPartOne() {
-        assertThat(Day13().partOne(), `is`(-1))
+        assertThat(Day00().partOne(), `is`(-1))
     }
 
     @Test
     fun testExampleTwo() {
-        assertThat(Day13().partTwo("""
+        assertThat(
+            Day00().partTwo(
+                """
             1
             2
             3
-        """.trimIndent()), `is`(-1))
+        """.trimIndent()
+            ), `is`(-1)
+        )
     }
+
     @Test
     fun testPartTwo() {
-        assertThat(Day13().partTwo(), `is`(-1))
+        assertThat(Day00().partTwo(), `is`(-1))
     }
 }
