@@ -2,23 +2,23 @@ package days.y2022
 
 
 import days.Day
+import org.hamcrest.CoreMatchers.nullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
 import java.lang.Integer.max
-import java.util.*
 import kotlin.math.absoluteValue
 
 
 class Day15(val bound: Int = 20) : Day(2022, 15) {
     override fun partOne(input: String): (rowToScan: Int) -> Int {
-        val sensors = parseInput(input)
+        val sensors = parseInput(input.takeUnless { it.isBlank() } ?: inputString)
         return { rowToScan ->
             val beaconPositions =
                 sensors.mapNotNull { sensor -> sensor.closest.x.takeIf { sensor.closest.y == rowToScan } }.toSet()
-            val exclusionZonePoints = sensors.map { sensor ->
+            val exclusionZonePoints = sensors.mapNotNull { sensor ->
                 sensor.exclusionZone(rowToScan)
-            }.sortedBy { it.first }
+            }
             (exclusionZonePoints.smallest()..exclusionZonePoints.largest()).count { x ->
                 !beaconPositions.contains(x) && exclusionZonePoints.any { it.contains(x) }
             }
@@ -27,7 +27,25 @@ class Day15(val bound: Int = 20) : Day(2022, 15) {
 
 
     override fun partTwo(input: String): Any {
-        return -1
+        val sensors = parseInput(input)
+
+        for (y in (0..bound)) {
+            val zones = sensors.mapNotNull { sensor -> sensor.exclusionZone(y) }
+            val xBounds = (zones.smallest() + 1) until zones.largest()
+
+            val oneToTheLeft = zones.map { it.first }.map { it - 1 }
+            val oneToTheRight = zones.map { it.last }.map { it + 1 }
+            val searchXs = listOf(oneToTheLeft, oneToTheRight).flatten()
+
+            for (x in searchXs) {
+                if (xBounds.contains(x) && zones.none { it.contains(x) }) {
+                    return (x * 4000000L) + y
+                }
+            }
+
+        }
+
+        error("no result found")
     }
 
 
@@ -37,34 +55,13 @@ class Day15(val bound: Int = 20) : Day(2022, 15) {
     }
 
 
-    class Sensor(val pos: Point, val closest: Point) {
-        val xLowerBound = pos.x - closest.distance(pos)
-        val xUpperBound = pos.x + closest.distance(pos)
-
-        fun isInExclusionZone(that: Point) = pos.distance(that) <= pos.distance(closest)
-
-        // returns all positions that are x units away from the sensor
-        fun allPositionsXAway(distance: Int): Set<Point> {
-            val result = mutableSetOf<Point>()
-            for (x in 0..distance) {
-                val y = distance - x
-                result.add(Point(x + pos.x, y + pos.y))
-                result.add(Point(-x + pos.x, y + pos.y))
-                result.add(Point(x + pos.x, -y + pos.y))
-                result.add(Point(-x + pos.x, -y + pos.y))
-            }
-            return result
-        }
-
-        fun exclusionZone(atY: Int): IntRange {
-            val distance = pos.distance(closest)
-            val offset = (atY - pos.y).absoluteValue
-            val size = max(0, (distance - offset))
-            return (pos.x - size)..(pos.x + size)
-        }
+    data class Sensor(val pos: Point, val closest: Point) {
+        val distance = pos.distance(closest)
     }
 
+
     fun parseInput(input: String): List<Sensor> {
+        if (input.isBlank() && inputString.isNotBlank()) return parseInput(inputString)
         return input.trim().lines().mapNotNull { line ->
             Regex(".*x=(-?\\d+), y=(-?\\d+).*x=(-?\\d+), y=(-?\\d+)").find(line)?.groupValues?.let { groupValues ->
                 val (x, y, closestX, closestY) = groupValues.drop(1).map { it.toInt() }
@@ -75,11 +72,16 @@ class Day15(val bound: Int = 20) : Day(2022, 15) {
 
 }
 
-private fun List<IntRange>.smallest( ) = minOf { it.first }
-private fun List<IntRange>.largest( ) = maxOf { it.last }
 
+private fun List<IntRange>.smallest() = minOf { it.first }
+private fun List<IntRange>.largest() = maxOf { it.last }
 
-private fun IntRange.contains(other: IntRange): Boolean = other.first > this.first && other.first < this.last
+fun Day15.Sensor.exclusionZone(atY: Int): IntRange? {
+    val offset = (atY - pos.y).absoluteValue
+    val size = max(0, (distance - offset))
+    if (size == 0) return null
+    return (pos.x - size)..(pos.x + size)
+}
 
 
 class Day15Test {
@@ -110,22 +112,14 @@ class Day15Test {
 
     @Test
     fun testPartOne() {
-        @Suppress("UNCHECKED_CAST")
-        val result = (Day15().partOne() as (Int) -> Int)(2000000)
-        assertThat(result, `is`(4724228))
-    }
-
-    @Test
-    fun testExampleTwo() {
-        assertThat(
-            Day15().partTwo(exampleInput), `is`(56000011)
-        )
+        assertThat(Day15().partOne("")(2000000), `is`(4724228))
     }
 
     @Test
     fun testExclusionZone() {
         val sensor = Day15.Sensor(Day15.Point(8, 7), Day15.Point(2, 10))
 
+        assertThat(sensor.exclusionZone(10000), `is`(nullValue()))
         assertThat(sensor.exclusionZone(7), `is`(-1..17))
 
         assertThat(sensor.exclusionZone(6), `is`(0..16))
@@ -135,41 +129,19 @@ class Day15Test {
         assertThat(sensor.exclusionZone(9), `is`(1..15))
     }
 
+
     @Test
-    fun allSquaresXDistanceFrom() {
-        val sens = Day15.Sensor(Day15.Point(5, 5), Day15.Point(10, 10))
-        assertThat(sens.allPositionsXAway(0), `is`(setOf(Day15.Point(5, 5))))
+    fun testExampleTwo() {
         assertThat(
-            sens.allPositionsXAway(1), `is`(
-                setOf(
-                    Day15.Point(5, 6),
-                    Day15.Point(5, 4),
-                    Day15.Point(6, 5),
-                    Day15.Point(4, 5)
-                )
-            )
-        )
-        assertThat(
-            sens.allPositionsXAway(2), `is`(
-                setOf(
-                    Day15.Point(5, 7),
-                    Day15.Point(5, 3),
-                    Day15.Point(6, 6),
-                    Day15.Point(4, 6),
-                    Day15.Point(7, 5),
-                    Day15.Point(3, 5),
-                    Day15.Point(6, 4),
-                    Day15.Point(4, 4)
-                )
-            )
+            Day15(20).partTwo(exampleInput), `is`(56000011L)
         )
     }
 
+
     @Test
     fun testPartTwo() {
-        @Suppress("UNCHECKED_CAST")
         assertThat(
-            Day15(4000000).partTwo(), `is`(-1)
+            Day15(4000000).partTwo(""), `is`(13622251246513L)
         )
     }
 }
