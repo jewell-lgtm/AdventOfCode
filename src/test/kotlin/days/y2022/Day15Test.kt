@@ -5,6 +5,7 @@ import days.Day
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
 import org.junit.jupiter.api.Test
+import java.lang.Integer.max
 import java.util.*
 import kotlin.math.absoluteValue
 
@@ -12,22 +13,15 @@ import kotlin.math.absoluteValue
 class Day15(val bound: Int = 20) : Day(2022, 15) {
     override fun partOne(input: String): (rowToScan: Int) -> Int {
         val sensors = parseInput(input)
-        val beaconPositions = sensors.map { it.closest.toString() }.toSet()
-        val smallestX = sensors.minOf { it.xLowerBound }
-        val largestX = sensors.maxOf { it.xUpperBound }
-        return { y ->
-            val filter = (smallestX..largestX).filter { x ->
-                val sensorExclusionZone = sensors.any { sensor ->
-                    Point(x, y).toString() !in beaconPositions && sensor.isInExclusionZone(
-                        Point(
-                            x,
-                            y
-                        )
-                    )
-                }
-                sensorExclusionZone
+        return { rowToScan ->
+            val beaconPositions =
+                sensors.mapNotNull { sensor -> sensor.closest.x.takeIf { sensor.closest.y == rowToScan } }.toSet()
+            val exclusionZonePoints = sensors.map { sensor ->
+                sensor.exclusionZone(rowToScan)
+            }.sortedBy { it.first }
+            (exclusionZonePoints.smallest()..exclusionZonePoints.largest()).count { x ->
+                !beaconPositions.contains(x) && exclusionZonePoints.any { it.contains(x) }
             }
-            filter.size
         }
     }
 
@@ -61,6 +55,13 @@ class Day15(val bound: Int = 20) : Day(2022, 15) {
             }
             return result
         }
+
+        fun exclusionZone(atY: Int): IntRange {
+            val distance = pos.distance(closest)
+            val offset = (atY - pos.y).absoluteValue
+            val size = max(0, (distance - offset))
+            return (pos.x - size)..(pos.x + size)
+        }
     }
 
     fun parseInput(input: String): List<Sensor> {
@@ -73,6 +74,12 @@ class Day15(val bound: Int = 20) : Day(2022, 15) {
     }
 
 }
+
+private fun List<IntRange>.smallest( ) = minOf { it.first }
+private fun List<IntRange>.largest( ) = maxOf { it.last }
+
+
+private fun IntRange.contains(other: IntRange): Boolean = other.first > this.first && other.first < this.last
 
 
 class Day15Test {
@@ -104,7 +111,8 @@ class Day15Test {
     @Test
     fun testPartOne() {
         @Suppress("UNCHECKED_CAST")
-        assertThat((Day15().partOne() as (Int) -> Int)(2000000), `is`(4724228))
+        val result = (Day15().partOne() as (Int) -> Int)(2000000)
+        assertThat(result, `is`(4724228))
     }
 
     @Test
@@ -112,6 +120,19 @@ class Day15Test {
         assertThat(
             Day15().partTwo(exampleInput), `is`(56000011)
         )
+    }
+
+    @Test
+    fun testExclusionZone() {
+        val sensor = Day15.Sensor(Day15.Point(8, 7), Day15.Point(2, 10))
+
+        assertThat(sensor.exclusionZone(7), `is`(-1..17))
+
+        assertThat(sensor.exclusionZone(6), `is`(0..16))
+        assertThat(sensor.exclusionZone(5), `is`(1..15))
+
+        assertThat(sensor.exclusionZone(8), `is`(0..16))
+        assertThat(sensor.exclusionZone(9), `is`(1..15))
     }
 
     @Test
