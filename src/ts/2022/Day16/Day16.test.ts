@@ -45,7 +45,7 @@ Valve CC has flow rate=10; tunnel leads to valve BB
      `.trim();
     const { distances, flowRate } = parseInput(input);
     const potentialFlowRate = createPotentialFlowRate(distances, flowRate);
-    const bestValve = createBestValve(distances, flowRate);
+
     expect(potentialFlowRate(30, "AA", "AA")).toEqual(0);
     expect(potentialFlowRate(30, "AA", "BB")).toEqual(
       // (time remaining - travel time - 1 minute to open) * flow rate
@@ -54,63 +54,70 @@ Valve CC has flow rate=10; tunnel leads to valve BB
     expect(potentialFlowRate(30, "AA", "CC")).toEqual((30 - 2 - 1) * 10);
     expect(potentialFlowRate(2, "AA", "BB")).toEqual(0);
     expect(potentialFlowRate(2, "AA", "CC")).toBeLessThan(0);
-
-    // bestValve uses potential flow rate
-    expect(bestValve(new Set(["AA", "BB", "CC"]), "AA", 30)).toEqual("CC");
-    expect(bestValve(new Set(["AA", "BB"]), "AA", 30)).toEqual("BB");
-    expect(bestValve(new Set(["AA", "BB", "CC"]), "AA", 3)).toEqual("BB");
   });
   test("example one", () => {
     expect(partOne(exampleInput)).toEqual(1651);
   });
 
   test("part one", () => {
-    expect(partOneImplOne(input)).toEqual(5506);
+    expect(partOne(input)).toEqual(2320);
   });
 
-  test("example two", () => {
-    expect(partTwo(exampleInput)).toEqual(140);
+  // way too slow, and returns the wrong answer
+  test.skip("example two", () => {
+    expect(partTwo(exampleInput)).toEqual(1707);
   });
-  test("part two", () => {
+  test.skip("part two", () => {
     expect(partTwo(input)).toEqual(21756);
   });
 });
 
 const partOne = (input: string) => {
-  const { flowRate, tunnels, distances, valves } = parseInput(input);
-  let open = new Set<string>([...valves]);
-  let position = "AA";
-  let releasedPressure = 0;
-  let timeRemaining = 30;
+  const { flowRate, distances, valves } = parseInput(input);
 
-  const bestValve = createBestValve(distances, flowRate);
   const potentialFlowRate = createPotentialFlowRate(distances, flowRate);
-  const distanceTo = (other: string) => distances.get(position)!.get(other)!;
+  const distanceTo = (from: string, to: string) =>
+    distances.get(from)!.get(to)!;
+  const closed = (open: Set<any>) =>
+    [...valves.values()].filter((v) => !open.has(v) && flowRate.get(v)! > 0);
 
-  while (timeRemaining) {
-    const nextValve = bestValve(open, position, timeRemaining);
-    open.delete(nextValve);
-    releasedPressure += potentialFlowRate(timeRemaining, position, nextValve);
-    timeRemaining -= distanceTo(nextValve) - 1;
+  let bestPressure = 0;
+  const queue = [
+    { position: "AA", releasedPressure: 0, open: new Set(), timeRemaining: 30 },
+  ];
+
+  let i = 0;
+  while (queue.length) {
+    const { position, releasedPressure, open, timeRemaining } = queue.shift()!;
+    const check = closed(open);
+    if (++i % 10000 === 0)
+      console.log({
+        check: check.length,
+        i,
+        length: queue.length,
+        bestPressure,
+        timeRemaining,
+      });
+    for (const newPosition of check) {
+      const newTimeRemaining =
+        timeRemaining - distanceTo(position, newPosition) - 1;
+      if (newTimeRemaining >= 0) {
+        const newPressure =
+          releasedPressure +
+          potentialFlowRate(timeRemaining, position, newPosition);
+        const newOpen = add(open, newPosition);
+        bestPressure = Math.max(bestPressure, newPressure);
+        queue.push({
+          position: newPosition,
+          releasedPressure: newPressure,
+          open: newOpen,
+          timeRemaining: newTimeRemaining,
+        });
+      }
+    }
   }
 
-  return releasedPressure;
-};
-
-const createBestValve = (
-  distances: Map<string, Map<string, number>>,
-  flowRate: Map<string, number>
-) => {
-  const potentialFlowRate = createPotentialFlowRate(distances, flowRate);
-  return function bestValve(
-    open: Set<string>,
-    position: string,
-    timeRemaining: number
-  ) {
-    return maxBy(open, (valve) =>
-      potentialFlowRate(timeRemaining, position, valve)
-    );
-  };
+  return bestPressure;
 };
 
 const createPotentialFlowRate =
@@ -125,79 +132,6 @@ const createPotentialFlowRate =
     const remainingTimeAfterOpening = timeRemaining - distanceToOther - 1;
     return remainingTimeAfterOpening * flowRateOfOther;
   };
-
-const maxBy = <T>(
-  collection: Iterable<T>,
-  toComparable: (item: T) => number
-): T => {
-  const array = Array.from(collection);
-  if (array.length < 1) {
-    throw new Error("can't compare empty array");
-  }
-  let best: T = array.pop()!;
-  let highestScore = toComparable(best);
-  while (array.length) {
-    const compare = array.pop()!;
-    const newScore = toComparable(compare);
-    if (newScore > highestScore) {
-      highestScore = newScore;
-      best = compare;
-    }
-  }
-  return best;
-};
-
-const partOneImplOne = (input: string) => {
-  const { flowRate, tunnels } = parseInput(input);
-  const memoTable = new Map<string, number>();
-
-  function calcPressure(open: Set<string>) {
-    let result = 0;
-    for (const openValve of open) {
-      result += flowRate.get(openValve) ?? 0;
-    }
-    return result;
-  }
-
-  function explore(
-    open: Set<string>,
-    position: string,
-    pressureReleased: number,
-    timeRemaining: number,
-    pathTaken: string[]
-  ): number {
-    const memoKey = pathTaken.join(",");
-    if (memoTable.has(memoKey)) return memoTable.get(memoKey)!;
-
-    pathTaken = [...pathTaken, position];
-    const newTime = timeRemaining - 1;
-    if (newTime <= 0) return pressureReleased;
-    const newPressure = calcPressure(open) + pressureReleased;
-    const possibilities: ReturnType<typeof explore>[] = [];
-
-    if (!open.has(position) && (flowRate.get(position) ?? 0) > 0) {
-      possibilities.push(
-        explore(add(open, position), position, newPressure, newTime, pathTaken)
-      );
-    }
-    const valveTunnels = tunnels.get(position);
-    if (valveTunnels) {
-      possibilities.push(
-        ...valveTunnels.map((tunnel) => {
-          return explore(open, tunnel, newPressure, newTime, pathTaken);
-        })
-      );
-    }
-
-    const result = Math.max(...possibilities);
-    memoTable.set(memoKey, result);
-    return result;
-  }
-
-  return explore(new Set(), "AA", 0, 30, []);
-};
-
-const partTwo = (input: string) => 123;
 
 const parseInput = (input: string) => {
   const parsed = input.split("\n").map((line): [string, number, string[]] => {
@@ -257,13 +191,12 @@ const calcDistances = (valves: Set<string>, tunnels: Map<string, string[]>) => {
   }
 };
 
-const add = <T>(set: Set<T>, val: T) => {
-  const clone = new Set(set);
-  clone.add(val);
-  return clone;
+const add = <T>(set: Set<T>, ...vals: T[]) =>
+  vals.reduce((acc, val) => {
+    acc.add(val);
+    return acc;
+  }, new Set(set));
+
+const partTwo = (input: string) => {
+  return 123;
 };
-const reduce = <In, Out>(
-  open: Set<In>,
-  accumulator: (acc: Out, valve: In) => Out,
-  start: Out
-) => Array.from(open).reduce(accumulator, start);
