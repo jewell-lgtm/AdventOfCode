@@ -60,6 +60,10 @@ Valve CC has flow rate=10; tunnel leads to valve BB
   });
 
   test("part one", () => {
+    expect(partOneQueueBased(input)).toEqual(2320);
+  });
+
+  test("part one new solution", () => {
     expect(partOne(input)).toEqual(2320);
   });
 
@@ -73,6 +77,56 @@ Valve CC has flow rate=10; tunnel leads to valve BB
 });
 
 const partOne = (input: string) => {
+  const { flowRate, distances, tunnels } = parseInput(input);
+
+  let i = 0;
+
+  const solve = cache(
+    (pos, timeRemaining, open) =>
+      [pos, timeRemaining, [...open.values()].join(",")].join(":"),
+    (pos: string, timeRemaining: number, open: Set<string>) => {
+      i++;
+      if (timeRemaining == 0) return 0;
+      // explore open tunnels
+      let score = Math.max(
+        ...Array.from(tunnels.get(pos)!, (tunnel) =>
+          solve(tunnel, timeRemaining - 1, open)
+        )
+      );
+
+      if (flowRate.get(pos)! > 0 && !open.has(pos)) {
+        const thisTunnel = (timeRemaining - 1) * flowRate.get(pos)!;
+        score = Math.max(
+          score,
+          thisTunnel + solve(pos, timeRemaining - 1, add(open, pos))
+        );
+      }
+
+      return score;
+    }
+  );
+
+  const result = solve("AA", 30, new Set());
+  console.log("i", i);
+
+  return result;
+};
+
+const cache = <Fn extends (...args: any[]) => any>(
+  createCacheKey: (...args: Parameters<Fn>) => string,
+  fn: Fn
+) => {
+  const memo = new Map<string, ReturnType<Fn>>();
+
+  return (...args: Parameters<Fn>) => {
+    const key = createCacheKey(...args);
+    if (!memo.has(key)) {
+      memo.set(key, fn(...args));
+    }
+    return memo.get(key)!;
+  };
+};
+const partOneQueueBased = (input: string) => {
   const { flowRate, distances, valves } = parseInput(input);
 
   const potentialFlowRate = createPotentialFlowRate(distances, flowRate);
