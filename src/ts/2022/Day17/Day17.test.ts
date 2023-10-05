@@ -1,74 +1,119 @@
 import { exampleInput, input } from "./Day17Input";
 
-describe("Day16", function () {
+describe("Day17", function () {
   test("part one example", () => {
-    expect(partOne(exampleInput)).toEqual(71);
+    expect(partOne(exampleInput)).toEqual(3068);
   });
   test("part one", () => {
-    expect(partOne(input)).toEqual(0);
+    expect(partOne(input)).toEqual(3181);
   });
 });
 
 const partOne = (input: string) => {
   const nextJet = createNextJet(input);
-  const nextRock = createNextRock();
+  const [getRockCount, nextRock] = createNextRock();
+  let cols = ["aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg"];
+  let rock;
+  let jet;
+  // let drawn;
 
-  let fallenRocks = 1;
-  const highest = [0, 0, 0, 0, 0, 0, 0];
-  while (fallenRocks < 2022) {
-    let rock = nextRock();
-    let y = Math.max(...highest) + 3;
-    let x = 0;
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
-    let jet = nextJet();
-    rock = moveX(jet, rock);
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
-    jet = nextJet();
-    rock = moveX(jet, rock);
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
-    jet = nextJet();
-    rock = moveX(jet, rock);
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
-    jet = nextJet();
-    rock = moveX(jet, rock);
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
-    jet = nextJet();
-    rock = moveX(jet, rock);
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
-    jet = nextJet();
-    rock = moveX(jet, rock);
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
-    jet = nextJet();
-    rock = moveX(jet, rock);
-    console.log("the rocks position is as follows:\n\n", drawRock(rock, y));
+  while (getRockCount() < 2022) {
+    rock = nextRock();
+    let falling = true;
+    const highest = Math.max(...cols.map((it) => it.lastIndexOf("#")));
+    let y = highest + 4;
+    let x = 2;
+    let prevY = y;
+    cols = cols.map((it) => it.padEnd(y + rock.length, "."));
+    // drawn = draw(cols, { shape: rock, x, y });
+    // console.log(draw(cols, { shape: rock, x, y }));
+
+    while (falling) {
+      jet = nextJet();
+      // console.log("jet", jet);
+      x = moveX(cols, rock, x, y, jet);
+      // drawn = draw(cols, { shape: rock, x, y });
+      // console.log(draw(cols, { shape: rock, x, y }));
+      y = moveY(cols, rock, x, y);
+      falling = y !== prevY;
+      prevY = y;
+      // drawn = draw(cols, { shape: rock, x, y });
+      // console.log(draw(cols, { shape: rock, x, y }));
+    }
+    cols = fallenRock(cols, rock, x, y);
+    // drawn = draw(cols, { shape: [], x, y });
   }
-  return 123;
+
+  return Math.max(...cols.map((it) => it.lastIndexOf("#") + 1));
 };
 
-function moveX(jet: "<" | ">", rock: string[]) {
-  rock = rock.map((row) => row.padEnd(7, "."));
-  if (jet === "<") {
-    if (!rock.some((row) => row[0] === "#")) {
-      rock = rock.map((row) => row.slice(1) + ".");
+function draw(
+  cols: string[],
+  rock: {
+    shape: string[];
+    x: number;
+    y: number;
+  }
+) {
+  const rows: string[][] = [];
+
+  for (let x = 0; x < cols.length; x++) {
+    for (let y = 0; y < cols[x].length; y++) {
+      if (rows[y] === undefined) rows[y] = [];
+      if (rock.shape[y - rock.y]?.[x - rock.x] === "@") {
+        rows[y][x] = "@";
+      } else {
+        rows[y][x] = cols[x][y];
+      }
     }
   }
+
+  return rows
+    .reverse()
+    .map((it) => it.join(""))
+    .join("\n");
+}
+const partTwo = (input: string) => -1;
+
+const moveX = (
+  cols: string[],
+  rock: string[],
+  x: number,
+  y: number,
+  jet: "<" | ">"
+) => {
   if (jet === ">") {
-    if (!rock.some((row) => row[row.length - 1] === "#")) {
-      rock = rock.map((row) => "." + row.slice(0, row.length - 1));
-    }
+    if (isValidPosition(rock, cols, x + 1, y)) return x + 1;
   }
-  return rock;
+  if (jet === "<") {
+    if (isValidPosition(rock, cols, x - 1, y)) return x - 1;
+  }
+  return x;
+};
+
+function moveY(cols: string[], rock: string[], x: number, y: number) {
+  if (isValidPosition(rock, cols, x, y - 1)) return y - 1;
+  return y;
 }
 
-function drawRock(rock: string[], y: number) {
-  const result = [];
-  for (let iY = 0; iY < y; iY++) {
-    result.unshift(["."]);
+function isValidPosition(
+  rock: string[],
+  cols: string[],
+  startX: number,
+  startY: number
+) {
+  if (startX < 0) return false;
+  if (startY < 0) return false;
+  for (let y = 0; y < rock.length; y++) {
+    for (let x = 0; x < rock[y].length; x++) {
+      if (startX + x >= cols.length) return false;
+      const rockCell = rock[y][x];
+      if (rockCell === ".") continue;
+      const gridCell = cols[startX + x][startY + y];
+      if (gridCell === "#") return false;
+    }
   }
-  for (let iRow = 0; iRow < rock.length; iRow++) {
-    result.unshift(rock[iRow]);
-  }
-  return result.join("\n");
+  return true;
 }
 
 const createNextJet = (input: string) => {
@@ -77,14 +122,58 @@ const createNextJet = (input: string) => {
 };
 
 const createNextRock = () => {
-  let i = -1;
+  // prettier-ignore
   const rocks = [
-    ["..####"],
-    ["...#.", "..###", "...#."],
-    ["....#", "....#", "..###"],
-    ["..#", "..#", "..#", "..#"],
-    ["..##", "..##"],
-  ];
+        [
+            "@@@@"
+        ],
+        [
+            ".@.",
+            "@@@",
+            ".@."
+        ],
+        [
+            "..@",
+            "..@",
+            "@@@",
+        ].reverse(),
+        [
+            "@",
+            "@",
+            "@",
+            "@"
+        ],
+        [
+            "@@",
+            "@@"
+        ],
+    ];
+  let i = 0;
 
-  return () => rocks[++i % rocks.length];
+  return [
+    () => i,
+    () => {
+      const results = rocks[i % rocks.length];
+      i++;
+      return results;
+    },
+  ] as const;
 };
+
+function fallenRock(
+  cols: string[],
+  rock: string[],
+  startX: number,
+  startY: number
+) {
+  for (let y = 0; y < rock.length; y++) {
+    for (let x = 0; x < rock[y].length; x++) {
+      if (rock[y][x] === ".") continue;
+      cols[startX + x] =
+        cols[startX + x].slice(0, startY + y) +
+        "#" +
+        cols[startX + x].slice(startY + y + 1);
+    }
+  }
+  return cols;
+}
