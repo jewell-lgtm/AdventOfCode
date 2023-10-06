@@ -2,14 +2,21 @@ import { exampleInput, input } from "./Day17Input";
 
 describe("Day17", function () {
   test("part one example", () => {
-    expect(partOne(exampleInput)).toEqual(3068);
+    expect(solvePuzzle(exampleInput, 2022)).toEqual(3068);
   });
   test("part one", () => {
-    expect(partOne(input)).toEqual(3181);
+    expect(solvePuzzle(input, 2022)).toEqual(3181);
+  });
+
+  // guessing this should be solved with some periodicity check
+  test.skip("part two example", () => {
+    expect(
+      solvePuzzle(exampleInput, 1000000000000 /* this is a very big number */)
+    ).toEqual(-1);
   });
 });
 
-const partOne = (input: string) => {
+const solvePuzzle = (input: string, maxRocks: number) => {
   const nextJet = createNextJet(input);
   const [getRockCount, nextRock] = createNextRock();
   let cols = ["aaa", "bbb", "ccc", "ddd", "eee", "fff", "ggg"];
@@ -17,7 +24,7 @@ const partOne = (input: string) => {
   let jet;
   // let drawn;
 
-  while (getRockCount() < 2022) {
+  while (getRockCount() < maxRocks) {
     rock = nextRock();
     let falling = true;
     const highest = Math.max(...cols.map((it) => it.lastIndexOf("#")));
