@@ -18,4 +18,6 @@
 - [Day 13](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/ts/2022/Day13/Day13.test.ts)
 - [Day 14](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day14Test.kt)
 - [Day 14](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day14Test.kt)
+- [Day 15](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day15Test.kt)
+- [Day 16 (part one)](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/ts/2022/Day16/Day16.test.ts)
 - [Day 17 (part one)](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/ts/2022/Day17/Day17.test.ts)
