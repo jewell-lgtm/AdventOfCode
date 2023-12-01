@@ -1,6 +1,6 @@
 package days
 
-import util.InputReader
+import util.Old__InputReader
 
 abstract class Day(yearNumber: Int, dayNumber: Int) {
     fun partOne(): Any = partOne(inputString)
@@ -9,6 +9,6 @@ abstract class Day(yearNumber: Int, dayNumber: Int) {
     abstract fun partOne(input: String): Any
     abstract fun partTwo(input: String): Any
 
-    protected val inputString: String by lazy { InputReader.getInputAsString(yearNumber, dayNumber) }
+    protected val inputString: String by lazy { Old__InputReader.getInputAsString(yearNumber, dayNumber) }
 
 }

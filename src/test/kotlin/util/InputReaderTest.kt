@@ -9,13 +9,13 @@ class InputReaderTest {
 
     @Test
     fun testReadInputAsString() {
-        val testInputAsString = InputReader.getInputAsString(1666, 1)
+        val testInputAsString = Old__InputReader.getInputAsString(1666, 1)
         assertThat(testInputAsString, `is`("this\nis\na\ntest input\nfile\n"))
     }
 
     @Test
     fun testReadInputAsList() {
-        val testInputAsList = InputReader.getInputAsList(1666, 1)
+        val testInputAsList = Old__InputReader.getInputAsList(1666, 1)
         assertThat(testInputAsList, contains("this", "is", "a", "test input", "file"))
     }
 }
