@@ -1,5 +1,7 @@
-import { first, get, last, sum } from "lodash";
+import { first, get, last, reverse, sortBy, sum } from "lodash";
 import { exampleInput, exampleInput2, input } from "./Day01input";
+
+import { ok as assertOkay } from "assert";
 
 describe("Day01", function () {
   test("PartOne Example", () => {
@@ -17,9 +19,14 @@ describe("Day01", function () {
     expect(solution).toEqual(281);
   });
 
+  test("eightwo", () => {
+    const solution = partTwo("eightwo\neightwo");
+    expect(solution).toEqual(164);
+  });
+
   test("PartTwo", () => {
     const solution = partTwo(input);
-    expect(solution).not.toEqual(54100); // not sure why this is wrong
+    expect(solution).toEqual(54087); // not sure why this is wrong
   });
 });
 
@@ -32,34 +39,46 @@ const partOne = (input: string) => {
 
 const partTwo = (input: string) => {
   const lines = input.split("\n");
-  const digits = lines.map((it) => findFirstLastDigitRegex(it).map(toDigits));
+  const names = lines.map((it) => firstLastDigitOrNumber(it));
+  const digits = names.map((it) => it.map((name) => toDigit(name)));
   const numbers = digits.map(([first, last]) => parseInt(`${first}${last}`));
+
   return sum(numbers);
 };
 
-const findFirstLastDigitRegex = (input: string) => {
-  const firstDigit = input.match(
-    /(1|2|3|4|5|6|7|8|9|one|two|three|four|five|six|seven|eight|nine)/
-  )![0];
-  const lastDigit = input.match(
-    /(1|2|3|4|5|6|7|8|9|one|two|three|four|five|six|seven|eight|nine)(?!.*(?:1|2|3|4|5|6|7|8|9|one|two|three|four|five|six|seven|eight|nine))/
-  )![0];
-  return [firstDigit, lastDigit];
+const numbers = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+const sortedDigits = sortBy(
+  ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"],
+  (it) => it.length
+);
+const firstLastDigitOrNumber = (input: string) => {
+  const search = [...numbers, ...sortedDigits];
+  let firstDigit: string;
+  let buffer = "";
+  for (const char of input) {
+    buffer += char;
+    const match = search.find((it) => buffer.endsWith(it));
+    if (match) {
+      firstDigit = match;
+      break;
+    }
+  }
+  assertOkay(firstDigit!);
+  buffer = "";
+  const backwardsSearch = search.map((it) => reverseString(it));
+  for (const char of reverseString(input)) {
+    buffer += char;
+    const match = backwardsSearch.find((it) => buffer.endsWith(it));
+    if (match) {
+      return [firstDigit, reverseString(match)];
+    }
+  }
+  throw new Error("couldn't find a match");
 };
 
-const digits = {
-  one: "1",
-  two: "2",
-  three: "3",
-  four: "4",
-  five: "5",
-  six: "6",
-  seven: "7",
-  eight: "8",
-  nine: "9",
-};
+const reverseString = (input: string) => reverse(input.split("")).join("");
 
-const toDigits = (input: string) =>
+const toDigit = (input: string) =>
   get(
     {
       one: "1",
