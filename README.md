@@ -3,7 +3,7 @@
 ## Solutions:
 
 ### 2023
-- [Day 1]()
+- [Day 1](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/ts/2023/Day01/Day01.test.ts)
 
 ### 2022
 - [Day 1](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day01Test.kt)
