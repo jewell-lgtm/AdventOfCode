@@ -14,9 +14,10 @@ object InputReader {
     }
 
     private fun fromResources(year: Int, day: Int, filename: String): File {
-        val name = "$year/day_$day/$filename.txt"
+        val name = "$year/day_${day.toString().padStart(2, '0')}/$filename.txt"
         return File(javaClass.classLoader.getResource(name)?.toURI() ?: error("Input file $name not found"))
     }
+
 }
 
 object Old__InputReader {
