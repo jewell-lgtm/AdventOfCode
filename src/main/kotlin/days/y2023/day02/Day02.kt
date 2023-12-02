@@ -12,19 +12,24 @@ fun partOne(input: String): Int {
 
 fun partTwo(input: String): Int {
     val parsed = parseInput(input)
-    return parsed.map { game ->
-        val red = game.sets.maxOf { it.countRed }
-        val green = game.sets.maxOf { it.countGreen }
-        val blue = game.sets.maxOf { it.countBlue }
-        Triple(red, green, blue)
-    }.sumOf { (red, green, blue) -> red * green * blue }
-
+    return parsed
+        .map { game -> game.minPossible() }
+        .sumOf { set -> set.product() }
 }
+
+private fun GameSet.product() = countBlue * countGreen * countRed
 
 private fun Game.possible(red: Int, green: Int, blue: Int): Boolean {
     return sets.all { set ->
         set.countRed <= red && set.countGreen <= green && set.countBlue <= blue
     }
+}
+
+private fun Game.minPossible(): GameSet {
+    val red = sets.maxOf { it.countRed }
+    val green = sets.maxOf { it.countGreen }
+    val blue = sets.maxOf { it.countBlue }
+    return GameSet(countRed = red, countGreen = green, countBlue = blue)
 }
 
 
