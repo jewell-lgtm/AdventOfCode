@@ -3,15 +3,15 @@ package days.y2023.day04
 import util.InputReader
 
 class Day04(input: List<String>) {
-    private val deck: List<Card> =
-        input.mapNotNull { if (it.isNotEmpty()) Card(it) else null }
+    private val deck: List<Card> = input.map { Card(it) }
 
-    fun partOne() = deck.sumOf { it.points() }
+    fun partOne() = deck.sumOf { it.points }
+
     fun partTwo(): Int {
         val count = deck.associateWith { 1 }.toMutableMap()
         deck.forEachIndexed { index, card ->
             val thisCount = count[card] ?: error("Card ${card.id} not found")
-            for (i in 1..card.winners().size) {
+            for (i in 1..card.winners.size) {
                 val nextCard = deck[index + i]
                 count[nextCard] = count[nextCard]!! + thisCount
             }
@@ -20,12 +20,13 @@ class Day04(input: List<String>) {
     }
 
 
-    class Card(val id: Int, val winningNumbers: List<Int>, val gameNumbers: List<Int>)
+    class Card(val id: Int, private val winningNumbers: List<Int>, private val gameNumbers: List<Int>) {
+        val winners: List<Int> by lazy { winningNumbers.filter { it in gameNumbers } }
 
-    private fun Card.winners(): List<Int> = winningNumbers.filter { it in gameNumbers }
+        // yes, I know, powers of 2 are a thing
+        val points: Int by lazy { winners.fold(0) { acc, _ -> if (acc == 0) 1 else acc * 2 } }
+    }
 
-    // yes, I know, powers of 2 are a thing
-    private fun Card.points(): Int = winners().fold(0) { acc, _ -> if (acc == 0) 1 else acc * 2 }
 
     private fun Card(input: String): Card {
         val (idStr, numStr) = input.split(": ")
