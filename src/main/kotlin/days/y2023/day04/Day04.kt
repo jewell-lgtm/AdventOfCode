@@ -20,7 +20,7 @@ class Day04(input: List<String>) {
     }
 
 
-    class Card(val id: Int, private val winningNumbers: List<Int>, private val gameNumbers: List<Int>) {
+    data class Card(val id: Int, private val winningNumbers: List<Int>, private val gameNumbers: List<Int>) {
         val winners: List<Int> by lazy { winningNumbers.filter { it in gameNumbers } }
 
         // yes, I know, powers of 2 are a thing
