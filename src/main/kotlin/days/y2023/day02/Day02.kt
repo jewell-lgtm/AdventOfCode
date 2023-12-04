@@ -72,8 +72,8 @@ private fun List<String>.greenChunk(): Int? =
 private fun MatchGroupCollection.getInt(name: String) = this[name]?.value?.toInt() ?: error(name)
 private fun MatchGroupCollection.getString(name: String) = this[name]?.value ?: error(name)
 
-fun main(args: Array<String>) {
+fun main() {
     println("Example One: ${partOne(InputReader.getExample(2023, 2))}")
-    println("Part One: ${partOne(InputReader.getInput(2023, 2))}")
-    println("Part Two: ${partTwo(InputReader.getInput(2023, 2))}")
+    println("Part One: ${partOne(InputReader.getPuzzleInput(2023, 2))}")
+    println("Part Two: ${partTwo(InputReader.getPuzzleInput(2023, 2))}")
 }

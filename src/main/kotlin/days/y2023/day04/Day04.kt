@@ -43,7 +43,7 @@ class Day04(input: List<String>) {
 
 fun main() {
     val exampleInput = InputReader.getExampleLines(2023, 4)
-    val puzzleInput = InputReader.getInputLines(2023, 4)
+    val puzzleInput = InputReader.getPuzzleLines(2023, 4)
 
     println("Part 1 example: ${Day04(exampleInput).partOne()}")
     println("Part 1: ${Day04(puzzleInput).partOne()}")
