@@ -6,11 +6,19 @@ import java.io.File
 
 object InputReader {
     fun getExample(year: Int, day: Int, filename: String = "example"): String {
-        return fromResources(year, day, filename).readText()
+        return fromResources(year, day, filename).readText().trim()
+    }
+
+    fun getExampleLines(year: Int, day: Int, filename: String = "example"): List<String> {
+        return fromResources(year, day, filename).readLines().filter { it.isNotEmpty() }
     }
 
     fun getInput(year: Int, day: Int): String {
-        return fromResources(year, day, "input").readText()
+        return fromResources(year, day, "input").readText().trim()
+    }
+
+    fun getInputLines(year: Int, day: Int): List<String> {
+        return fromResources(year, day, "input").readLines().filter { it.isNotEmpty() }
     }
 
     private fun fromResources(year: Int, day: Int, filename: String): File {

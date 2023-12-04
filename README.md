@@ -6,7 +6,7 @@
 - [Day 1](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/ts/2023/Day01/Day01.test.ts)
 - [Day 2](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/main/kotlin/days/y2023/day02/Day02.kt)
 - [Day 3](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/main/kotlin/days/y2023/day03/Day03.kt)
-
+- [Day 4](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/main/kotlin/days/y2023/day04/Day04.kt)
 
 ### 2022
 - [Day 1](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day01Test.kt)
