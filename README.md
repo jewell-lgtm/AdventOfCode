@@ -7,6 +7,8 @@
 - [Day 2](https://github.com/jewell-lgtm/AdventOfCode/blob/main/Notebooks/y2023/Day02.ipynb)
 - [Day 3](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/main/kotlin/days/y2023/day03/Day03.kt)
 - [Day 4](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/main/kotlin/days/y2023/day04/Day04.kt)
+- [Day 5 (slow but works)]https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/main/kotlin/days/y2023/day04/Day05.kt()
+- [Day 6](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/main/kotlin/days/y2023/day04/Day06.kt)
 
 ### 2022
 - [Day 1](https://github.com/jewell-lgtm/AdventOfCode/blob/main/src/test/kotlin/days/y2022/Day01Test.kt)
