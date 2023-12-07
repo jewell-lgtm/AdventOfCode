@@ -78,7 +78,7 @@ class Day14 : Day(2022, 14) {
         if (sand.contains(this)) {
             error("Full of sand.")
         }
-        val deepest = walls.maxBy { it.y }!!
+        val deepest = walls.maxBy { it.y }
         if (floor == null && this.y > deepest.y) {
             error("We are falling into the abyss")
         }
