@@ -18,7 +18,7 @@ fun main() {
     val exampleInput: PuzzleInput = InputReader.getExampleLines(year, day)
     val puzzleInput: PuzzleInput = InputReader.getPuzzleLines(year, day)
 
-    fun partOne(input: PuzzleInput): Int = Day00(input).partOne()
+    fun partOne(input: PuzzleInput) = Day00(input).partOne()
 
     println("Example 1: ${partOne(exampleInput)}")
 }

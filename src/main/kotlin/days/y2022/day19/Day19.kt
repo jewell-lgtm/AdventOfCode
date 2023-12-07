@@ -1,211 +1,203 @@
 package days.y2022.day19
 
-import getNamedInt
-import nonEmptyLines
 import util.InputReader
 import kotlin.math.ceil
 
-fun partOne(input: String): Int {
-    val blueprints = parseInput(input)
-    val bestGeodes = blueprints.map { blueprint ->
-        val memo = mutableMapOf<GameState, Int>()
-        val initialState = GameState(24, 1)
-        maxGeodes(memo, blueprint, initialState)
-    }
-    println("bestGeodes: $bestGeodes")
-    return bestGeodes.max()
-}
+typealias PuzzleLine = String
+typealias PuzzleInput = List<PuzzleLine>
 
-var comparisons = -1
-fun maxGeodes(memo: MutableMap<GameState, Int>, blueprint: Blueprint, state: GameState): Int {
-    comparisons += 1
-    if (comparisons % 10000000 == 0) {
-        println("$comparisons:${memo.size}")
-    }
-    if (memo[state] != null) {
-        return memo[state]!!
-    }
-    if (state.remainingMinutes == 0) {
-        return state.amountGeodes.also { memo[state] = it }
-    }
-    val possibilities = mutableListOf<GameState>()
-    state.eventuallyBuyOreRobot(blueprint)?.let { possibilities.add(it) }
-    state.eventuallyBuyClayRobot(blueprint)?.let { possibilities.add(it) }
-    state.eventuallyBuyObsidianRobot(blueprint)?.let { possibilities.add(it) }
-    state.eventuallyBuyGeodesRobot(blueprint)?.let { possibilities.add(it) }
+class Day19(val input: PuzzleInput) {
+    val bluePrints = input.map { it.toBlueprint() }
 
-    if (possibilities.isEmpty()) {
-        val moreGeodes = state.amountGeodes + state.remainingMinutes * state.countGeodeRobots
-        return moreGeodes.also { memo[state] = it }
+    fun partOne(): Int {
+        val initialState = GameState.initial()
+        val blueprint = bluePrints.first()
+        return blueprint.bestStateFrom(
+            mutableMapOf(), GameState(
+                remainingMinutes = 24,
+                countOreRobots = 1,
+                ore = 0,
+                countClayRobots = 0,
+                clay = 0,
+                countObsidianRobots = 0,
+                obsidian = 0,
+                countGeodeRobots = 0,
+                geodes = 0
+            )
+        ).geodes
     }
 
-    return possibilities.maxOf { maxGeodes(memo, blueprint, it) }.also { memo[state] = it }
 }
-
-fun GameState.eventuallyBuyOreRobot(blueprint: Blueprint): GameState? {
-    if (countOreRobots >= blueprint.maxOreCost) return null
-    if (remainingMinutes > 0 && amountOre > blueprint.oreRobotCost.ore) return copy(
-        remainingMinutes = remainingMinutes - 1,
-        countOreRobots = countOreRobots + 1,
-        amountOre = amountOre + countOreRobots - blueprint.oreRobotCost.ore,
-        amountClay = amountClay + countClayRobots,
-        amountObsidian = amountObsidian + countObsidianRobots,
-        amountGeodes = amountGeodes + countGeodeRobots
-    )
-    if (countOreRobots == 0) return null
-    val turnsToBuy = ((blueprint.oreRobotCost.ore - amountOre).toDouble() / countOreRobots.toDouble()).ceilToInt()
-    if (turnsToBuy > remainingMinutes) return null
-    return copy(
-        remainingMinutes = remainingMinutes - turnsToBuy,
-        countOreRobots = countOreRobots + 1,
-        amountOre = amountOre + turnsToBuy * countOreRobots - blueprint.oreRobotCost.ore,
-        amountClay = amountClay + turnsToBuy * countClayRobots,
-        amountObsidian = amountObsidian + turnsToBuy * countObsidianRobots,
-        amountGeodes = amountGeodes + turnsToBuy * countGeodeRobots
-    )
-}
-
-// clay robots are also bought with ore
-fun GameState.eventuallyBuyClayRobot(blueprint: Blueprint): GameState? {
-    if (countClayRobots >= blueprint.maxClayCost) return null
-    if (remainingMinutes > 0 && amountOre > blueprint.clayRobotCost.ore) return copy(
-        remainingMinutes = remainingMinutes - 1,
-        countClayRobots = countClayRobots + 1,
-        amountOre = amountOre + countOreRobots - blueprint.clayRobotCost.ore,
-        amountClay = amountClay + countClayRobots,
-        amountObsidian = amountObsidian + countObsidianRobots,
-        amountGeodes = amountGeodes + countGeodeRobots
-    )
-    if (countOreRobots == 0) return null
-    val turnsToBuy = ((blueprint.clayRobotCost.ore - amountOre).toDouble() / countOreRobots.toDouble()).ceilToInt()
-    if (turnsToBuy > remainingMinutes) return null
-    return copy(
-        remainingMinutes = remainingMinutes - turnsToBuy,
-        countClayRobots = countClayRobots + 1,
-        amountOre = amountOre + (turnsToBuy * countOreRobots) - blueprint.clayRobotCost.ore,
-        amountClay = amountClay + (turnsToBuy * countClayRobots),
-        amountObsidian = amountObsidian + (turnsToBuy * countObsidianRobots),
-        amountGeodes = amountGeodes + (turnsToBuy * countGeodeRobots),
-    )
-}
-
-// obsidian robots are bought with ore and clay
-fun GameState.eventuallyBuyObsidianRobot(blueprint: Blueprint): GameState? {
-    if (countObsidianRobots >= blueprint.maxObsidianCost) return null
-    if (remainingMinutes > 0 && amountOre > blueprint.obsidianRobotCost.ore && amountClay > blueprint.obsidianRobotCost.clay) return copy(
-        remainingMinutes = remainingMinutes - 1,
-        countObsidianRobots = countObsidianRobots + 1,
-        amountOre = amountOre + countOreRobots - blueprint.obsidianRobotCost.ore,
-        amountClay = amountClay + countClayRobots - blueprint.obsidianRobotCost.clay,
-        amountObsidian = amountObsidian + countObsidianRobots,
-        amountGeodes = amountGeodes + countGeodeRobots
-    )
-    if (countOreRobots == 0 || countClayRobots == 0) return null
-    val oreTurnsToBuy =
-        ((blueprint.obsidianRobotCost.ore - amountOre).toDouble() / countOreRobots.toDouble()).ceilToInt()
-    val clayTurnsToBuy =
-        ((blueprint.obsidianRobotCost.clay - amountClay).toDouble() / countClayRobots.toDouble()).ceilToInt()
-    val turnsToBuy = maxOf(oreTurnsToBuy, clayTurnsToBuy)
-    if (turnsToBuy > remainingMinutes) return null
-    return copy(
-        remainingMinutes = remainingMinutes - turnsToBuy,
-        countObsidianRobots = countObsidianRobots + 1,
-        amountOre = amountOre + turnsToBuy * countOreRobots - blueprint.obsidianRobotCost.ore,
-        amountClay = amountClay + turnsToBuy * countClayRobots - blueprint.obsidianRobotCost.clay,
-        amountObsidian = amountObsidian + turnsToBuy * countObsidianRobots,
-        amountGeodes = amountGeodes + turnsToBuy * countGeodeRobots
-    )
-}
-
-// geodes are bought with ore and obsidian
-fun GameState.eventuallyBuyGeodesRobot(blueprint: Blueprint): GameState? {
-    // never need too many geodes
-    if (remainingMinutes > 0 && amountOre > blueprint.geodeRobotCost.ore && amountObsidian > blueprint.geodeRobotCost.obsidian) return copy(
-        remainingMinutes = remainingMinutes - 1,
-        countGeodeRobots = countGeodeRobots + 1,
-        amountOre = amountOre + countOreRobots - blueprint.geodeRobotCost.ore,
-        amountClay = amountClay + countClayRobots,
-        amountObsidian = amountObsidian + countObsidianRobots - blueprint.geodeRobotCost.obsidian,
-        amountGeodes = amountGeodes + countGeodeRobots
-    )
-    if (countOreRobots == 0 || countObsidianRobots == 0) return null
-    val oreTurnsToBuy = ((blueprint.geodeRobotCost.ore - amountOre).toDouble() / countOreRobots.toDouble()).ceilToInt()
-    val obsidianTurnsToBuy =
-        ((blueprint.geodeRobotCost.obsidian - amountObsidian).toDouble() / countObsidianRobots.toDouble()).ceilToInt()
-    val turnsToBuy = maxOf(oreTurnsToBuy, obsidianTurnsToBuy)
-    if (turnsToBuy > remainingMinutes) return null
-    return copy(
-        remainingMinutes = remainingMinutes - turnsToBuy,
-        countGeodeRobots = countGeodeRobots + 1,
-        amountOre = amountOre + turnsToBuy * countOreRobots - blueprint.geodeRobotCost.ore,
-        amountClay = amountClay + turnsToBuy * countClayRobots,
-        amountObsidian = amountObsidian + turnsToBuy * countObsidianRobots - blueprint.geodeRobotCost.obsidian,
-        amountGeodes = amountGeodes + turnsToBuy * countGeodeRobots
-    )
-}
-
-private fun Double.ceilToInt(): Int = ceil(this).toInt()
-
 
 data class GameState(
-    val remainingMinutes: Int,
-    val countOreRobots: Int,
+    val remainingMinutes: Int = 0,
+    val countOreRobots: Int = 0,
     val countClayRobots: Int = 0,
     val countObsidianRobots: Int = 0,
     val countGeodeRobots: Int = 0,
-    val amountOre: Int = 0,
-    val amountClay: Int = 0,
-    val amountObsidian: Int = 0,
-    val amountGeodes: Int = 0
-)
-
-data class RobotCost(val ore: Int, val clay: Int = 0, val obsidian: Int = 0)
-data class Blueprint(
-    val id: Int,
-    val oreRobotCost: RobotCost = RobotCost(1),
-    val clayRobotCost: RobotCost = RobotCost(1),
-    val obsidianRobotCost: RobotCost = RobotCost(0, 1),
-    val geodeRobotCost: RobotCost = RobotCost(0, 0, 1)
+    val ore: Int = 0,
+    val clay: Int = 0,
+    val obsidian: Int = 0,
+    val geodes: Int = 0,
 ) {
-    val maxOreCost = maxOf(oreRobotCost.ore, clayRobotCost.ore, obsidianRobotCost.ore, geodeRobotCost.ore)
-    val maxClayCost = maxOf(oreRobotCost.clay, clayRobotCost.clay, obsidianRobotCost.clay, geodeRobotCost.clay)
-    val maxObsidianCost =
-        maxOf(oreRobotCost.obsidian, clayRobotCost.obsidian, obsidianRobotCost.obsidian, geodeRobotCost.obsidian)
-
     companion object {
-        fun from(line: String): Blueprint {
-            val match =
-                //            Blueprint 2:                  Each ore robot costs 2 ore.                Each clay robot costs 3 ore.                 Each obsidian robot costs 3 ore                        and 8 clay.                         Each geode robot costs 3                     ore and 12                         obsidian
-                Regex("Blueprint (?<blueprint>\\d+): Each ore robot costs (?<oreCost>\\d+) ore. Each clay robot costs (?<clayCost>\\d+) ore. Each obsidian robot costs (?<obsidianOreCost>\\d+) ore and (?<obsidianClayCost>\\d+) clay. Each geode robot costs (?<geodeOreCost>\\d+) ore and (?<geodeObsidianCost>\\d+) obsidian")
-                    .find(line)
-                    ?.groups ?: error("Did not match: $line")
-
-
-            val blueprint = match.getNamedInt("blueprint")
-            val oreCost = match.getNamedInt("oreCost")
-            val clayCost = match.getNamedInt("clayCost")
-            val obsidianOreCost = match.getNamedInt("obsidianOreCost")
-            val obsidianClayCost = match.getNamedInt("obsidianClayCost")
-            val geodeOreCost = match.getNamedInt("geodeOreCost")
-            val geodeObsidianCost = match.getNamedInt("geodeObsidianCost")
-
-            return Blueprint(
-                id = blueprint,
-                oreRobotCost = RobotCost(oreCost),
-                clayRobotCost = RobotCost(clayCost),
-                obsidianRobotCost = RobotCost(obsidianOreCost, clay = obsidianClayCost),
-                geodeRobotCost = RobotCost(geodeOreCost, obsidian = geodeObsidianCost)
-            )
-        }
-
-
+        fun initial() = GameState(
+            remainingMinutes = 24,
+            countOreRobots = 1,
+        )
     }
 }
 
 
-fun parseInput(input: String): List<Blueprint> = input.nonEmptyLines().map(Blueprint::from)
+sealed class RobotCost
+data class OreCost(val ore: Int) : RobotCost()
+data class OreClayCost(val ore: Int, val clay: Int) : RobotCost()
+data class OreObsidianCost(val ore: Int, val obsidian: Int) : RobotCost()
+
+data class Blueprint(
+    val id: Int,
+    val oreRobotCost: OreCost,
+    val clayRobotCost: OreCost,
+    val obsidianRobotCost: OreClayCost,
+    val geodeRobotCost: OreObsidianCost,
+)
+
+var hit = 0
+var miss = 0
+var i = 0
+fun Blueprint.bestStateFrom(memo: MutableMap<GameState, GameState>, state: GameState): GameState {
+    val missBefore = miss
+    val result = memo.getOrPut(state) {
+        miss++
+        val possibleNextStates = state.possibleNextStates(this)
+        possibleNextStates.maxByOrNull { bestStateFrom(memo, it).geodes } ?: state
+    }
+    if (miss > missBefore && i++ % 10 == 0) {
+        println("Miss ${miss++}")
+    } else {
+        hit++
+    }
+
+    return result
+}
+
+
+fun GameState.possibleNextStates(blueprint: Blueprint): Set<GameState> {
+    if (remainingMinutes == 0) return emptySet()
+    val result = mutableSetOf<GameState>()
+    buyClayRobot(blueprint)?.let { result.add(it) }
+    buyGeodeRobot(blueprint)?.let { result.add(it) }
+    result.add(doNothing())
+    return result
+}
+
+fun GameState.doNothing(): GameState = copy(
+    remainingMinutes = 0,
+    ore = ore + (remainingMinutes * countOreRobots),
+    clay = clay + (remainingMinutes * countClayRobots),
+    obsidian = obsidian + (remainingMinutes * countObsidianRobots),
+    geodes = geodes + (remainingMinutes * countGeodeRobots)
+)
+
+fun OreCost.oreTurnsRequired(currentOre: Int, orePerTurn: Int): Int? {
+    if (orePerTurn == 0) {
+        if (currentOre > ore) return 0
+        return null
+    }
+    return ((ore - currentOre).toFloat() / orePerTurn.toFloat()).ceilToInt().coerceAtLeast(0)
+}
+
+val Blueprint.maxClayCost get() = obsidianRobotCost.clay
+
+fun GameState.buyClayRobot(blueprint: Blueprint): GameState? {
+    if (blueprint.maxClayCost <= countClayRobots) return null
+    if (blueprint.maxClayCost <= clay) return null
+    val oreTurnsRequired =
+        blueprint.clayRobotCost.oreTurnsRequired(ore, countOreRobots + countClayRobots)
+            ?: return null
+
+    if (oreTurnsRequired > (remainingMinutes - 2)) return null
+
+    // wait 2 minutes deciding to build the robot (+ 2 ore, - 2 minutes)
+    // spend 1 minute building the robot (+ 1 ore, - 1 minute)
+    // land on the next minute, so we can build the robot (+ 1 ore, +1 clay, - 1 minute)
+
+    return copy(
+        remainingMinutes = remainingMinutes - oreTurnsRequired - 2,
+        countClayRobots = countClayRobots + 1,
+        ore = ore + (countOreRobots * (oreTurnsRequired + 2)) - blueprint.clayRobotCost.ore,
+        clay = clay + (countClayRobots * oreTurnsRequired) + 1,
+    )
+}
+
+fun OreObsidianCost.oreTunsRequired(currentOre: Int, orePerTurn: Int): Int? {
+    if (orePerTurn == 0) {
+        if (currentOre > ore) return 0
+        return null
+    }
+    return ((ore - currentOre).toFloat() / orePerTurn.toFloat()).ceilToInt().coerceAtLeast(0)
+}
+
+fun OreObsidianCost.obsidianTurnsRequired(currentObsidian: Int, obsidianPerTurn: Int): Int? {
+    if (obsidianPerTurn == 0) {
+        if (currentObsidian > obsidian) return 0
+        return null
+    }
+    return ((obsidian - currentObsidian).toFloat() / obsidianPerTurn.toFloat()).ceilToInt().coerceAtLeast(0)
+}
+
+fun GameState.buyGeodeRobot(blueprint: Blueprint): GameState? {
+    val oreTurnsRequired =
+        blueprint.geodeRobotCost.oreTunsRequired(ore, countOreRobots + countClayRobots + countObsidianRobots)
+            ?: return null
+    val obsidianTurnsRequired =
+        blueprint.geodeRobotCost.obsidianTurnsRequired(obsidian, countObsidianRobots) ?: return null
+
+    val turnsRequired = maxOf(oreTurnsRequired, obsidianTurnsRequired)
+    if (turnsRequired >= (remainingMinutes - 1)) return null
+
+    return copy(
+        remainingMinutes = remainingMinutes - turnsRequired,
+        countGeodeRobots = countGeodeRobots + 1,
+        ore = ore + (countOreRobots * turnsRequired) - blueprint.geodeRobotCost.ore,
+        clay = clay + (countClayRobots * turnsRequired),
+        obsidian = obsidian + (countObsidianRobots * turnsRequired) - blueprint.geodeRobotCost.obsidian,
+        geodes = geodes + (countGeodeRobots * turnsRequired),
+    )
+}
+
+fun Float.ceilToInt() = ceil(this).toInt()
+
+fun Blueprint.maxOreCost() = maxOf(
+    oreRobotCost.ore, clayRobotCost.ore, obsidianRobotCost.ore, geodeRobotCost.ore
+)
+
+fun PuzzleLine.toBlueprint(): Blueprint {
+    // Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
+    // Blueprint 2: Each ore robot costs 2 ore. Each clay robot costs 3 ore. Each obsidian robot costs 3 ore and 8 clay. Each geode robot costs 3 ore and 12 obsidian
+    val regex =
+        Regex("Blueprint (\\d+): Each ore robot costs (\\d+) ore. Each clay robot costs (\\d+) ore. Each obsidian robot costs (\\d+) ore and (\\d+) clay. Each geode robot costs (\\d+) ore and (\\d+) obsidian.*")
+    val matchResult = regex.matchEntire(this) ?: error("Invalid blueprint line: $this")
+
+    return Blueprint(
+        id = matchResult.groupValues[1].toInt(),
+        oreRobotCost = OreCost(matchResult.groupValues[2].toInt()),
+        clayRobotCost = OreCost(matchResult.groupValues[3].toInt()),
+        obsidianRobotCost = OreClayCost(matchResult.groupValues[4].toInt(), matchResult.groupValues[5].toInt()),
+        geodeRobotCost = OreObsidianCost(matchResult.groupValues[6].toInt(), matchResult.groupValues[7].toInt()),
+    )
+}
 
 
 fun main() {
-    println("Example One: ${partOne(InputReader.getExample(2022, 19))}")
+    val year = 2022
+    val day = 19
+
+    val exampleInput: PuzzleInput = InputReader.getExampleLines(year, day)
+    val puzzleInput: PuzzleInput = InputReader.getPuzzleLines(year, day)
+
+    fun partOne(input: PuzzleInput) = Day19(input).partOne()
+
+    println("Example 1: ${partOne(exampleInput)}")
 }
+
