@@ -49,21 +49,17 @@ class Day08(val input: PuzzleInput) {
 
         println(periodLengths)
 
-        return periodLengths.lowestCommonMultiple()
+        return periodLengths.leastCommonMultiple()
     }
 
 }
 
-private fun List<BigInteger>.product(): BigInteger {
-    return this.fold(BigInteger.ONE) { acc, i -> acc * i }
-}
-
-private fun List<BigInteger>.greatestCommonDivisor(): BigInteger {
-    return this.fold(this[0]) { acc, i -> acc.gcd(i) }
-}
-
-private fun List<BigInteger>.lowestCommonMultiple(): BigInteger {
-    return this.product() / this.greatestCommonDivisor()
+private fun List<BigInteger>.leastCommonMultiple(): BigInteger {
+    var lcm = this[0]
+    for (i in 1 until this.size) {
+        lcm = lcm.multiply(this[i]).divide(lcm.gcd(this[i]))
+    }
+    return lcm
 }
 
 enum class Direction {
