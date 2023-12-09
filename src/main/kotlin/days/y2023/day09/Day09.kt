@@ -1,4 +1,4 @@
-package days.y2023.dy_08
+package days.y2023.day09
 
 import util.InputReader
 
