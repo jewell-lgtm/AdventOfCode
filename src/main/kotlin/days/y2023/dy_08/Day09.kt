@@ -30,6 +30,7 @@ class Day09(val input: PuzzleInput) {
         return result[0].last().toLong()
     }
 
+    // part 2 - Where's the tricky part?
     // no fancy shenanigens, just copy paste
     fun findSequence2(input: List<Int>): Long {
         val result = mutableListOf(input.toMutableList())
