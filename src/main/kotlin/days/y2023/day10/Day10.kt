@@ -57,6 +57,8 @@ private fun PuzzleGrid.pipeContains(pipe: Set<PipeSection>, position: Position):
             currPosition = currPosition.copy(y = currPosition.y - 1)
         }
     }
+
+    return false // TODO: here
 }
 
 
