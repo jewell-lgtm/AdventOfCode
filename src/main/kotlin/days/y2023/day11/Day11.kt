@@ -34,35 +34,54 @@ data class GalaxyMap(val positions: Set<Position>, val spaceExpansionQuotient: I
         return positions.toList().pairwise()
     }
 
-    fun nonManhattanDistance(a: Position, b: Position): Int {
-        val xs = (a.x + 1)..b.x
-        val ys = (a.y + 1)..b.y
+    fun nonManhattanDistance(start: Position, end: Position): Int {
+        var dist = 0
+        var curr = start
+        while (curr.x != end.x) {
+            val travelCost = if (xIsEmpty(curr.x) )spaceExpansionQuotient else 1
+            dist += travelCost
+            curr = curr.copy(x = curr.x.unitTo(end.x))
+        }
 
-        val emptyYs = ys.filter { y -> this.yIsEmpty(y) }
-        val emptyXs = xs.filter { x -> this.xIsEmpty(x) }
+        while (curr.y != end.y) {
+            val travelCost = if (yIsEmpty(curr.y) )spaceExpansionQuotient else 1
+            dist += travelCost
+            curr = curr.copy(y = curr.y.unitTo(end.y))
+        }
 
-        val yCost = ys.sumOf { y -> if (y in emptyYs) spaceExpansionQuotient else 1 }
-        val xCost = xs.sumOf { x -> if (x in emptyXs) spaceExpansionQuotient else 1 }
-
-
-        return yCost + xCost
+        return dist
     }
 
-    private fun yIsEmpty(y: Int): Boolean {
-        return positions.none { it.y == y }
+    private fun isGalaxy(point: Position) = point in positions
+
+    fun allPointsBetween(a: Position, b: Position): List<Position> {
+        // first go left/right
+        val route = mutableListOf(a)
+        while (route.last() != b) {
+            route.last().x.unitTo(b.x)
+                ?.also { nextX -> route.add(route.last().copy(x = nextX)) }
+            route.last().y.unitTo(b.y)
+                ?.also { nextY -> route.add(route.last().copy(y = nextY)) }
+        }
+        return route
     }
 
-    private fun xIsEmpty(x: Int): Boolean {
-        return positions.none { it.x == x }
+    private fun yIsEmpty(that: Int): Boolean {
+        return positions.none { it.y == that }
     }
 
-    fun at(y: Int, x: Int): Position {
-        val ys = positions.filter { it.y == y }
-        val xs = positions.filter { it.x == x }
-
-
-        return positions.firstOrNull() { it.y == y && it.x == x } ?: throw Exception("Nothing at $y, $x")
+    private fun xIsEmpty(that: Int): Boolean {
+        return positions.none { it.x == that }
     }
+
+    fun at(y: Int, x: Int): Position =
+        positions.firstOrNull() { it.y == y && it.x == x } ?: error("Nothing at $y, $x")
+}
+
+private fun Int.unitTo(x: Int) = when {
+    this < x -> this + 1
+    this > x -> this - 1
+    else -> 0
 }
 
 fun Collection<Position>.toGalaxyMap(quo: Int): GalaxyMap = GalaxyMap(this.toSet(), spaceExpansionQuotient = quo)
@@ -99,7 +118,7 @@ fun main() {
     println("Puzzle 1: ${partOne(puzzleInput)}")
 }
 
-fun <E>assertEq(a: E, b: E) {
+fun <E> assertEq(a: E, b: E) {
     if (a != b) {
         error("Expected $a, got $b")
     }
