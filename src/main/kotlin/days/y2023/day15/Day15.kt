@@ -11,12 +11,11 @@ class Day15(val input: PuzzleInput) {
         // Increase the current value by the ASCII code you just determined.
         // Set the current value to itself multiplied by 17.
         // Set the current value to the remainder of dividing itself by 256.
-        val strs = input.split(",").map {
-            it to it.fold(0) { hash, c ->
+        return input.split(",").sumOf { str ->
+            str.fold(0 as Int) { hash, c ->
                 ((hash + c.toInt()) * 17) % 256
             }
         }
-        return strs.sumOf { it.second }
     }
 
     fun partTwo(): Int {
@@ -54,12 +53,11 @@ class Day15(val input: PuzzleInput) {
 
                 is Operation.Eq -> {
                     val box = boxes[op.hash] ?: mutableListOf()
-                    val existingIndex = box.indexOfFirst { it.label == op.label }.takeIf { it != -1 }
-                    if (existingIndex == null) {
-                        box.add(Lens(op.label, op.focalLength))
-                    } else {
-                        box[existingIndex] = Lens(op.label, op.focalLength)
-                    }
+                    val i = box
+                        .indexOfFirst { it.label == op.label }
+                        .takeIf { it != -1 } ?: box.size
+
+                    box[i] = Lens(op.label, op.focalLength)
                     boxes[op.hash] = box
                 }
             }
