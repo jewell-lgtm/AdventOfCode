@@ -74,52 +74,46 @@ fun Maze.advance(
     if (!grid.contains(nextBeam.position)) return emptyList()
     energized.add(nextBeam.position)
     val nextPosition = grid[nextBeam.position]
-    val deflected = when (nextPosition) {
-        '.' -> listOf(nextBeam)
-        '|' -> when (nextBeam.direction) {
-            Direction.UP -> listOf(nextBeam)
-            Direction.DOWN -> listOf(nextBeam)
-            Direction.LEFT -> listOf(nextBeam.copy(direction = Direction.UP), nextBeam.copy(direction = Direction.DOWN))
-            Direction.RIGHT -> listOf(
-                nextBeam.copy(direction = Direction.UP),
-                nextBeam.copy(direction = Direction.DOWN)
-            )
-        }
-
-        '-' -> when (nextBeam.direction) {
-            Direction.UP -> listOf(
-                nextBeam.copy(direction = Direction.LEFT),
-                nextBeam.copy(direction = Direction.RIGHT)
-            )
-
-            Direction.DOWN -> listOf(
-                nextBeam.copy(direction = Direction.LEFT),
-                nextBeam.copy(direction = Direction.RIGHT)
-            )
-
-            Direction.LEFT -> listOf(nextBeam)
-            Direction.RIGHT -> listOf(nextBeam)
-        }
-
-        '/' -> when (nextBeam.direction) {
-            Direction.UP -> listOf(nextBeam.copy(direction = Direction.RIGHT))
-            Direction.DOWN -> listOf(nextBeam.copy(direction = Direction.LEFT))
-            Direction.LEFT -> listOf(nextBeam.copy(direction = Direction.DOWN))
-            Direction.RIGHT -> listOf(nextBeam.copy(direction = Direction.UP))
-        }
-
-        '\\' -> when (nextBeam.direction) {
-            Direction.UP -> listOf(nextBeam.copy(direction = Direction.LEFT))
-            Direction.DOWN -> listOf(nextBeam.copy(direction = Direction.RIGHT))
-            Direction.LEFT -> listOf(nextBeam.copy(direction = Direction.UP))
-            Direction.RIGHT -> listOf(nextBeam.copy(direction = Direction.DOWN))
-        }
-
-        else -> TODO("${grid[nextBeam.position]}")
-    }
+    val deflected = getDeflected(nextPosition, nextBeam)
 
     return deflected
 }
+
+private fun getDeflected(square: Char, beam: Beam) =
+    when (square) {
+        '.' -> listOf(beam)
+        '|' -> when (beam.direction) {
+            Direction.UP, Direction.DOWN -> listOf(beam)
+            Direction.LEFT, Direction.RIGHT -> listOf(
+                beam.copy(direction = Direction.UP),
+                beam.copy(direction = Direction.DOWN)
+            )
+        }
+
+        '-' -> when (beam.direction) {
+            Direction.UP, Direction.DOWN -> listOf(
+                beam.copy(direction = Direction.LEFT),
+                beam.copy(direction = Direction.RIGHT)
+            )
+            Direction.LEFT, Direction.RIGHT -> listOf(beam)
+        }
+
+        '/' -> when (beam.direction) {
+            Direction.UP -> listOf(beam.copy(direction = Direction.RIGHT))
+            Direction.DOWN -> listOf(beam.copy(direction = Direction.LEFT))
+            Direction.LEFT -> listOf(beam.copy(direction = Direction.DOWN))
+            Direction.RIGHT -> listOf(beam.copy(direction = Direction.UP))
+        }
+
+        '\\' -> when (beam.direction) {
+            Direction.UP -> listOf(beam.copy(direction = Direction.LEFT))
+            Direction.DOWN -> listOf(beam.copy(direction = Direction.RIGHT))
+            Direction.LEFT -> listOf(beam.copy(direction = Direction.UP))
+            Direction.RIGHT -> listOf(beam.copy(direction = Direction.DOWN))
+        }
+
+        else -> TODO("$square")
+    }
 
 fun Beam.advance() = when (direction) {
     Direction.UP -> Beam(Position(position.x, position.y - 1), direction)
