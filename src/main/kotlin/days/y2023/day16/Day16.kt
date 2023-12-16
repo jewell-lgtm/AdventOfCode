@@ -31,9 +31,7 @@ class Day16(val input: PuzzleInput) {
 
         while (queue.isNotEmpty()) {
             val beam = queue.removeFirst()
-            if (alreadyTravelled.contains(beam.position to beam.direction)) continue
-            alreadyTravelled.add(beam.position to beam.direction)
-            val next = maze.advance(energised, beam)
+            val next = maze.advance(alreadyTravelled, energised, beam)
             queue.addAll(next)
         }
 
@@ -65,7 +63,13 @@ data class Beam(val position: Position, val direction: Direction)
 
 data class Maze(val grid: Grid2d)
 
-fun Maze.advance(energized: MutableSet<Position>, beam: Beam): List<Beam> {
+fun Maze.advance(
+    alreadyTravelled: MutableSet<Pair<Position, Direction>>,
+    energized: MutableSet<Position>,
+    beam: Beam
+): List<Beam> {
+    if (alreadyTravelled.contains(beam.position to beam.direction)) return emptyList()
+    alreadyTravelled.add(beam.position to beam.direction)
     val nextBeam = beam.advance()
     if (!grid.contains(nextBeam.position)) return emptyList()
     energized.add(nextBeam.position)
