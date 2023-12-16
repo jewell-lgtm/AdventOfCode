@@ -10,7 +10,7 @@ class Day16(val input: PuzzleInput) {
 
     fun partOne(): Int {
         val start = Beam(Position(-1, 0), Direction.RIGHT)
-        return energyFor(start)
+        return energyFor(mutableListOf(start))
     }
 
     fun partTwo(): Int {
@@ -21,12 +21,12 @@ class Day16(val input: PuzzleInput) {
             input.indices.map { y -> Beam(Position(input[0].length, y), Direction.LEFT) }
         ).flatten()
 
-        return starts.maxOf { energyFor(it) }
+        return starts.maxOf { energyFor(mutableListOf(it)) }
     }
 
-    private fun energyFor(start: Beam): Int {
+    private fun energyFor(startQueue: List<Beam>): Int {
         val energised = mutableSetOf<Position>()
-        val queue = mutableListOf(start)
+        val queue = startQueue.toMutableList()
         val alreadyTravelled = mutableSetOf<Pair<Position, Direction>>()
 
         while (queue.isNotEmpty()) {
