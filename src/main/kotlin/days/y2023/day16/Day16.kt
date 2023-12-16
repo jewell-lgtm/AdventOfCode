@@ -27,12 +27,12 @@ class Day16(val input: PuzzleInput) {
     private fun energyFor(start: Beam): Int {
         val energised = mutableSetOf<Position>()
         val queue = mutableListOf(start)
-        val travelled = mutableSetOf<Pair<Position, Direction>>()
+        val alreadyTravelled = mutableSetOf<Pair<Position, Direction>>()
 
         while (queue.isNotEmpty()) {
             val beam = queue.removeFirst()
-            if (travelled.contains(beam.position to beam.direction)) continue
-            travelled.add(beam.position to beam.direction)
+            if (alreadyTravelled.contains(beam.position to beam.direction)) continue
+            alreadyTravelled.add(beam.position to beam.direction)
             val next = maze.advance(energised, beam)
             queue.addAll(next)
         }
