@@ -8,16 +8,16 @@ typealias PuzzleInput = List<PuzzleLine>
 
 class Day11(val input: PuzzleInput) {
     private val galaxyPositions = input.galaxyPositions()
-    private val emptyRows = input.mapIndexedNotNull { index, row -> if (row.all('.')) index else null }
-    private val emptyCols = input.mapColsIndexedNotNull { index, row -> if (row.all('.')) index else null }
+    private val emptyRows = input.mapIndexedNotNull { index, row -> if (row.all { it == '.' }) index else null }
+    private val emptyCols = input.mapColsIndexedNotNull { index, row -> if (row.all { it == '.' }) index else null }
 
 
-    fun partOne(): Long {
-        return galaxyPositions.pairwise().sumOf { (a, b) -> a.nonManhattanDistance(b, 2) }
+    fun partOne(): ULong {
+        return galaxyPositions.pairwise().sumOf { (a, b) -> a.nonManhattanDistance(b, 2).toULong() }
     }
 
-    fun partTwo(): Long {
-        return galaxyPositions.pairwise().sumOf { (a, b) -> a.nonManhattanDistance(b, 1000000) }
+    fun partTwo(): ULong {
+        return galaxyPositions.pairwise().sumOf { (a, b) -> a.nonManhattanDistance(b, 1000000).toULong() }
     }
 
 
@@ -29,8 +29,6 @@ class Day11(val input: PuzzleInput) {
     private fun PuzzleInput.galaxyPositions(): List<Position> =
         allCharPositionsWhere { it == '#' }
 
-    private fun String.all(c: Char): Boolean = this.all { it == c }
-
     private fun <T> List<String>.mapColsIndexedNotNull(transform: (index: Int, col: String) -> T?): List<T> {
         return this[0].indices.mapNotNull { index ->
             transform(index, map { it[index] }.joinToString(""))
@@ -41,21 +39,24 @@ class Day11(val input: PuzzleInput) {
     private fun Position.manhattanY(other: Position): Int = abs(this.y - other.y)
     private fun Position.xRange(other: Position): IntRange = if (this.x < other.x) this.x..other.x else other.x..this.x
     private fun Position.yRange(other: Position): IntRange = if (this.y < other.y) this.y..other.y else other.y..this.y
-
-    private fun Position.nonManhattanDistance(other: Position, universeAge: Int): Long {
-        val includedEmptyCols = emptyCols.whereContainedBy(xRange(other))
-        val includedEmptyRows = emptyRows.whereContainedBy(yRange(other))
-        val xDistance = manhattanX(other) + includedEmptyCols.dilateSpacetime(universeAge - 1)
-        val yDistance = manhattanY(other) + includedEmptyRows.dilateSpacetime(universeAge - 1)
-        return (xDistance + yDistance).toLong()
-    }
+    private fun Position.emptyColsBetween(other: Position): List<Int> =
+        emptyCols.whereContainedBy(xRange(other))
+    private fun Position.emptyRowsBetween(other: Position): List<Int> =
+        emptyRows.whereContainedBy(yRange(other))
+    private fun Position.nonManhattanDistance(other: Position, universeAge: Int) =
+        (nonManhattanX(other, universeAge) + nonManhattanY(other, universeAge))
+    private fun Position.nonManhattanY(
+        other: Position,
+        universeAge: Int
+    ) = manhattanY(other) + emptyRowsBetween(other).dilateSpacetime(universeAge - 1)
+    private fun Position.nonManhattanX(
+        other: Position,
+        universeAge: Int
+    ) = manhattanX(other) + emptyColsBetween(other).dilateSpacetime(universeAge - 1)
 
     private fun List<Int>.dilateSpacetime(factor: Int): Int = size * factor
-
     private fun List<Int>.whereContainedBy(range: IntRange) = this.filter { it in range }
-
     private fun <E> List<E>.fromIndex(i: Int) = subList(i, size)
-
     private fun <E> List<E>.pairwise(): Sequence<Pair<E, E>> = asSequence().flatMapIndexed { i, e ->
         fromIndex(i + 1).asSequence().map { j ->
             Pair(e, j)
