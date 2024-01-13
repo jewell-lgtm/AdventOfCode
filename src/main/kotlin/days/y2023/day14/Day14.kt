@@ -152,7 +152,7 @@ fun toString(grid: PuzzleGrid): String {
 }
 
 
-fun PuzzleGrid.transpose(): PuzzleGrid {
+private fun PuzzleGrid.transpose(): PuzzleGrid {
     val rows = this.size
     val cols = this[0].size
     val newGrid = MutableList(cols) { MutableList(rows) { ' ' } }
