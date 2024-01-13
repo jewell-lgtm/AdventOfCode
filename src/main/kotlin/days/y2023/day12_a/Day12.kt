@@ -2,6 +2,7 @@ package days.y2023.day12_a
 
 
 import util.InputReader
+import util.timeIt
 
 typealias PuzzleLine = String
 typealias PuzzleInput = List<PuzzleLine>
@@ -78,19 +79,21 @@ fun Configuration.bigify(n: Int) = copy(
 
 
 fun main() {
-    val year = 2023
-    val day = 12
+    timeIt {
+        val year = 2023
+        val day = 12
 
-    val exampleInput: PuzzleInput = InputReader.getExampleLines(year, day)
-    val puzzleInput: PuzzleInput = InputReader.getPuzzleLines(year, day)
+        val exampleInput: PuzzleInput = InputReader.getExampleLines(year, day)
+        val puzzleInput: PuzzleInput = InputReader.getPuzzleLines(year, day)
 
-    fun partOne(input: PuzzleInput) = Day12(input).partOne()
-    fun partTwo(input: PuzzleInput) = Day12(input).partTwo()
+        fun partOne(input: PuzzleInput) = Day12(input).partOne()
+        fun partTwo(input: PuzzleInput) = Day12(input).partTwo()
 
 
-    println("Example 1: ${partOne(exampleInput)}")
-    println("Puzzle 1: ${partOne(puzzleInput)}")
-    println("Example 2: ${partTwo(exampleInput)}")
-    println("Puzzle 2: ${partTwo(puzzleInput)}")
+        println("Example 1: ${partOne(exampleInput)}")
+        println("Puzzle 1: ${partOne(puzzleInput)}")
+        println("Example 2: ${partTwo(exampleInput)}")
+        println("Puzzle 2: ${partTwo(puzzleInput)}")
+    }
 }
 
