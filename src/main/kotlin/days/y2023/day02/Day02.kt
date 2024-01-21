@@ -74,6 +74,6 @@ private fun MatchGroupCollection.getString(name: String) = this[name]?.value ?: 
 
 fun main() {
     println("Example One: ${partOne(InputReader.getExample(2023, 2))}")
-    println("Part One: ${partOne(InputReader.getPuzzleInput(2023, 2))}")
-    println("Part Two: ${partTwo(InputReader.getPuzzleInput(2023, 2))}")
+    println("Part One: ${partOne(InputReader.getPuzzle(2023, 2))}")
+    println("Part Two: ${partTwo(InputReader.getPuzzle(2023, 2))}")
 }

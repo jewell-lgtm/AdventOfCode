@@ -109,7 +109,7 @@ private val <E> List<E>.lastX: Int
 
 fun main() {
     println("Example 1: ${Day03(InputReader.getExample(2023, 3)).partOne()}")
-    println("Part 1: ${Day03(InputReader.getPuzzleInput(2023, 3)).partOne()}")
+    println("Part 1: ${Day03(InputReader.getPuzzle(2023, 3)).partOne()}")
     println("Example 2: ${Day03(InputReader.getExample(2023, 3)).partTwo()}")
-    println("Part 2: ${Day03(InputReader.getPuzzleInput(2023, 3)).partTwo()}")
+    println("Part 2: ${Day03(InputReader.getPuzzle(2023, 3)).partTwo()}")
 }

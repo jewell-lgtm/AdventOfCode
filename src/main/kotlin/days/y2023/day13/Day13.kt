@@ -120,7 +120,7 @@ fun main() {
     val day = 13
 
     val exampleInput: PuzzleInput = InputReader.getExample(year, day)
-    val puzzleInput: PuzzleInput = InputReader.getPuzzleInput(year, day)
+    val puzzleInput: PuzzleInput = InputReader.getPuzzle(year, day)
 
     fun partOne(input: PuzzleInput) = Day13(input).partOne()
     fun partTwo(input: PuzzleInput) = Day13(input).partTwo()

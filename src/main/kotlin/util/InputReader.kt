@@ -11,7 +11,7 @@ object InputReader {
     fun getExampleLines(year: Int, day: Int, filename: String = "example"): List<String> =
         getFileWithName(year, day, filename).readLines().dropLastWhile { it.isEmpty() }
 
-    fun getPuzzleInput(year: Int, day: Int): String = getFileWithName(year, day, "input").readText().trim()
+    fun getPuzzle(year: Int, day: Int): String = getFileWithName(year, day, "input").readText().trim()
 
     fun getPuzzleLines(year: Int, day: Int): List<String> =
         getFileWithName(year, day, "input").readLines().dropLastWhile { it.isEmpty() }
