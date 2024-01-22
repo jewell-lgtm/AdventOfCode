@@ -13,7 +13,7 @@ import kotlin.random.Random
 
 fun main() {
     val a = listOf(1, 1, 2, 3, 5, 8, 13, 10, 20, 30, 40, 1, 2, 3, 4)
-    val b = (0..9999).map { Random.nextInt(0, 9999) }
+    val b = generateRandomInts(9999)
 
     timeIt {
         println(calculateCostToRecursive(a))
@@ -23,9 +23,19 @@ fun main() {
         println(calculateCostToIterative(a))
         println(calculateCostToIterative(b))
     }
+    val randoms =
+        listOf(9, 99, 999, 9999, 99999, 999999, 9999999, 99999999).map { max -> generateRandomInts(max) }
+
+    randoms.forEach { costs ->
+        println(costs.size)
+        timeIt { calculateCostToIterative(costs) }
+    }
+
     println(calculateCostToRecursive(a) == calculateCostToIterative(a))
     println(calculateCostToRecursive(b) == calculateCostToRecursive(b))
 }
+
+private fun generateRandomInts(i: Int) = (0..i).map { Random.nextInt(0, i) }
 
 fun Int?.unwrap(): Int {
     if (this == null) error("Value should not be null")
@@ -33,7 +43,7 @@ fun Int?.unwrap(): Int {
 }
 
 interface LRUCache {
-    operator fun set(key: Int, value: Int): Unit
+    operator fun set(key: Int, value: Int)
     operator fun get(key: Int): Int // in this example require cache hit
 }
 
@@ -92,9 +102,6 @@ fun calculateCostToRecursive(costs: List<Int>): Int {
     var comparisons = 0
     fun minCostTo(index: Int): Int {
         comparisons++
-        if (comparisons % 1000 == 0) {
-            println("$comparisons Comparisons")
-        }
         if (index < 2) return costs.costAt(index)
         return memo.getOrPut(index) {
             costs.costAt(index) + min(minCostTo(index - 2), minCostTo(index - 1))
